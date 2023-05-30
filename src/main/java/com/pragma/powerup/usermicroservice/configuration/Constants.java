@@ -2,6 +2,7 @@ package com.pragma.powerup.usermicroservice.configuration;
 
 public class Constants {
 
+
     private Constants() {
         throw new IllegalStateException("Utility class");
     }
@@ -10,6 +11,12 @@ public class Constants {
     public static final Long EMPLOYEE_ROLE_ID = 2L;
     public static final Long PROVIDER_ROLE_ID = 3L;
     public static final int MAX_PAGE_SIZE = 2;
+    public static final String RESTAURANT_CREATED_MESSAGE = "Restaurant created successfully";
+    public static final String INVALID_USER_EXCEPTION = "Invalid user.";
+    public static final String DUPLICATED_NAME_EXCEPTION = "Duplicated name";
+    public static final String PHONE_NUMBER_FORMAT_EXCEPTION = "Phone number format invalid";
+    public static final String BAD_REQUEST_EXCEPTION = "Bad request. Try again please";
+    public static final String NIT_MUST_BE_NUMERIC_EXCEPTION = "Nit must be numeric";
     public static final String RESPONSE_MESSAGE_KEY = "message";
     public static final String PERSON_CREATED_MESSAGE = "Person created successfully";
     public static final String USER_CREATED_MESSAGE = "User created successfully";
