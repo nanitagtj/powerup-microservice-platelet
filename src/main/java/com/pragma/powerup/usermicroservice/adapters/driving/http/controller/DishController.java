@@ -39,9 +39,9 @@ public class DishController {
                 .body(Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY, Constants.DISH_CREATED_MESSAGE));
     }
 
-    @Operation(summary = "Update a new dish",
+    @Operation(summary = "Update dish",
             responses = {
-                    @ApiResponse(responseCode = "201", description = "Dish created",
+                    @ApiResponse(responseCode = "201", description = "Dish updated",
                             content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Map"))),
                     @ApiResponse(responseCode = "409", description = "Dish already exists",
                             content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error")))})
@@ -50,6 +50,18 @@ public class DishController {
         dishHandler.updateDish(id, dishUpdateRequestDto, request);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY, Constants.DISH_UPDATED_MESSAGE));
+    }
+    @Operation(summary = "Update status from dish",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Dish updated",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Map"))),
+                    @ApiResponse(responseCode = "409", description = "Dish already exists",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error")))})
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateDishStatus(@PathVariable("id") Long id, @RequestParam("active") boolean active, HttpServletRequest request) {
+        dishHandler.updateDishStatus(id, active, request);
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
+                .body(Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY, Constants.DISH_UPDATED_STATUS_MESSAGE));
     }
 }
 

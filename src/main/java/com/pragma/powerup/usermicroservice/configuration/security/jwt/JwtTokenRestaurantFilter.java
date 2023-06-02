@@ -47,6 +47,10 @@ public class JwtTokenRestaurantFilter extends OncePerRequestFilter {
                     throw new AuthenticationException("Unauthorized");
                 }
 
+                if (isUpdateStatusDishRequest(request) && !roles.contains("ROLE_OWNER")){
+                    throw new AuthenticationException("Unauthorized");
+                }
+
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -79,8 +83,13 @@ public class JwtTokenRestaurantFilter extends OncePerRequestFilter {
     }
 
     private boolean isUpdateDishRequest(HttpServletRequest request) {
-        return request.getMethod().equalsIgnoreCase("POST")
+        return request.getMethod().equalsIgnoreCase("PATCH")
                 && request.getRequestURI().contains("/dish/{id}");
+    }
+
+    private boolean isUpdateStatusDishRequest(HttpServletRequest request) {
+        return request.getMethod().equalsIgnoreCase("PUT")
+                && request.getRequestURI().contains("/platelet/{id}/status");
     }
 
     private String getToken(HttpServletRequest request) {

@@ -24,4 +24,9 @@ public class DishHandlerImpl implements IDishHandler {
     public void updateDish(Long id, DishUpdateRequestDto dishUpdateRequestDto, HttpServletRequest request) {
         dishServicePort.updateDish(id, dishRequestMapper.toDishUpdate(dishUpdateRequestDto), request);
     }
+
+    @Override
+    public void updateDishStatus(Long id, boolean active, HttpServletRequest request) {
+        dishServicePort.updateDishStatus(id, active, request);
+    }
 }

@@ -7,4 +7,5 @@ import jakarta.servlet.http.HttpServletRequest;
 public interface IDishHandler {
     void createDish(DishRequestDto dishRequestDto, HttpServletRequest request);
     void updateDish(Long id, DishUpdateRequestDto dishUpdateRequestDto, HttpServletRequest request);
+    void updateDishStatus(Long id, boolean active, HttpServletRequest request);
 }

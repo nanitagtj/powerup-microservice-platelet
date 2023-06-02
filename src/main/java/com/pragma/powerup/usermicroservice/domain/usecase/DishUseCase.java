@@ -67,4 +67,17 @@ public class DishUseCase implements IDishServicePort {
         dishPersistencePort.saveDish(existingDish);
     }
 
+    public void updateDishStatus(Long id, boolean active, HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        Long userId = jwtProvider.getUserIdFromToken(token);
+        Dish existingDish = dishPersistencePort.getDishById(id);
+
+        if (!existingDish.getRestaurant().getIdOwner().equals(userId)) {
+            throw new InvalidUserException();
+        }
+
+        existingDish.setActive(active);
+        dishPersistencePort.saveDish(existingDish);
+    }
+
 }
