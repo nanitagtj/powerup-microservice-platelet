@@ -8,6 +8,8 @@ import com.pragma.powerup.usermicroservice.domain.exceptions.InvalidUserExceptio
 import com.pragma.powerup.usermicroservice.domain.model.Restaurant;
 import com.pragma.powerup.usermicroservice.domain.spi.IRestaurantPersistencePort;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public class RestaurantUseCase implements IRestaurantServicePort {
     private final IRestaurantPersistencePort restaurantPersistencePort;
@@ -46,10 +48,15 @@ public class RestaurantUseCase implements IRestaurantServicePort {
             throw new DuplicateRestaurantName();
         }
     }
-
     @Override
     public Restaurant getRestaurantById(Long id) {
         return restaurantPersistencePort.getRestaurantById(id);
+    }
+
+    @Override
+    public Page<Restaurant> getAllRestaurants(Pageable pageable) {
+        Page<Restaurant> restaurantList =  restaurantPersistencePort.getAllRestaurants(pageable);
+        return restaurantList;
     }
 
 }
