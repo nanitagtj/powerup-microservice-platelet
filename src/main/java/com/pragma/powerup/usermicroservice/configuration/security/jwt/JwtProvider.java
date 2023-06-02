@@ -1,9 +1,6 @@
 package com.pragma.powerup.usermicroservice.configuration.security.jwt;
 
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.JWTParser;
-import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.JwtResponseDto;
+
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
 import org.slf4j.Logger;
@@ -11,10 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.text.ParseException;
-import java.util.Date;
 import java.util.List;
-
 @Component
 public class JwtProvider {
     private final static Logger logger = LoggerFactory.getLogger(JwtProvider.class);
@@ -27,6 +21,26 @@ public class JwtProvider {
         Claims claims = Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(token).getBody();
         return claims.get(ROLE_CLAIM,List.class);
     }
+
+    public Long getUserIdFromToken(String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secret.getBytes())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        Integer id = claims.get("id", Integer.class);
+        if (id != null) {
+            return id.longValue();
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
+
 
     public boolean validateToken(String token) {
         try {

@@ -1,7 +1,9 @@
 package com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request;
 
 import jakarta.persistence.Column;
+
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,21 +11,21 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class RestaurantRequestDto {
+public class DishRequestDto {
 
     @Column(nullable = false)
     @Pattern(regexp = "^(?=.*[a-zA-Z])[a-zA-Z0-9 ]+$", message = "Invalid name")
     private String name;
-    @Column(nullable = false, unique = true)
-    @Pattern(regexp = "^[0-9]{12}$", message = "The NIT must be numeric and contain exactly 12 digits")
-    private String nit;
     @Column(nullable = false)
-    private String address;
+    @Positive(message = "Price must be a positive number")
+    private int price;
     @Column(nullable = false)
-    @Pattern(regexp = "^\\+?[0-9]{12}$", message = "phone number must be like = +573221126845")
-    private String phone;
+    private String description;
     @Column(nullable = false)
-    private String urlLogo;
+    private String imageUrl;
     @Column(nullable = false)
-    private Long idOwner;
+    private Long idCategory;
+    @Column(nullable = false)
+    private Long idRestaurant;
+    private boolean active;
 }
