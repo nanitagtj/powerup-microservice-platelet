@@ -49,4 +49,22 @@ public class DishUseCase implements IDishServicePort {
         }
     }
 
+    @Override
+    public void updateDish(Long id, Dish dish, HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        Long userId = jwtProvider.getUserIdFromToken(token);
+        Restaurant restaurant = restaurantPersistencePort.getRestaurantById(dish.getRestaurant().getId());
+
+        if (!restaurant.getIdOwner().equals(userId)) {
+            throw new InvalidUserException();
+        }
+
+        Dish existingDish = dishPersistencePort.getDishById(id);
+
+        existingDish.setPrice(dish.getPrice());
+        existingDish.setDescription(dish.getDescription());
+
+        dishPersistencePort.saveDish(existingDish);
+    }
+
 }

@@ -16,4 +16,5 @@ public interface IDishEntityMapper {
     @Mapping(target = "restaurant", source = "restaurant")
     DishEntity toEntity(Dish dish);
 
+    Dish toDish(DishEntity dishEntity);
 }

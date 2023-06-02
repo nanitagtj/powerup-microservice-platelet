@@ -1,6 +1,7 @@
 package com.pragma.powerup.usermicroservice.adapters.driving.http.mapper;
 
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request.DishRequestDto;
+import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request.DishUpdateRequestDto;
 import com.pragma.powerup.usermicroservice.domain.model.Category;
 import com.pragma.powerup.usermicroservice.domain.model.Dish;
 import com.pragma.powerup.usermicroservice.domain.model.Restaurant;
@@ -15,7 +16,8 @@ public interface IDishRequestMapper {
     @Mapping(target = "category", source = "idCategory")
     @Mapping(target = "restaurant", source = "idRestaurant")
     Dish toDish (DishRequestDto dishRequestDto);
-
+    @Mapping(target = "restaurant", source = "idRestaurant")
+    Dish toDishUpdate (DishUpdateRequestDto dishUpdateRequestDto);
     default Category toCategory(Long idCategory) {
         return new Category(idCategory, null);
     }

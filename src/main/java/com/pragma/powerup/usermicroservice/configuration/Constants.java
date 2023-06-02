@@ -15,6 +15,7 @@ public class Constants {
     public static final String RESTAURANT_CREATED_MESSAGE = "Restaurant created successfully";
     public static final String INVALID_USER_EXCEPTION = "Invalid user.";
     public static final String DUPLICATED_NAME_EXCEPTION = "Duplicated name";
+    public static final Object DISH_UPDATED_MESSAGE = "Updated dish";
     public static final String PHONE_NUMBER_FORMAT_EXCEPTION = "Phone number format invalid";
     public static final String BAD_REQUEST_EXCEPTION = "Bad request. Try again please";
     public static final String DISH_CREATED_MESSAGE = "Dish created successfully";
