@@ -5,12 +5,19 @@ import com.pragma.powerup.usermicroservice.domain.api.IDishServicePort;
 import com.pragma.powerup.usermicroservice.domain.clientapi.IUserClientPort;
 import com.pragma.powerup.usermicroservice.domain.exceptions.DuplicateRestaurantName;
 import com.pragma.powerup.usermicroservice.domain.exceptions.InvalidUserException;
+import com.pragma.powerup.usermicroservice.domain.exceptions.RestaurantNotFoundException;
 import com.pragma.powerup.usermicroservice.domain.model.Dish;
 import com.pragma.powerup.usermicroservice.domain.model.Restaurant;
 import com.pragma.powerup.usermicroservice.domain.spi.IDishPersistencePort;
 import com.pragma.powerup.usermicroservice.domain.spi.IRestaurantPersistencePort;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DishUseCase implements IDishServicePort {
     private final IDishPersistencePort dishPersistencePort;
@@ -79,5 +86,28 @@ public class DishUseCase implements IDishServicePort {
         existingDish.setActive(active);
         dishPersistencePort.saveDish(existingDish);
     }
+
+    @Override
+    public Page<Dish> getDishesByRestaurantAndCategory(Long restaurantId, Long categoryId, Pageable pageable) {
+        Restaurant restaurant = restaurantPersistencePort.getRestaurantById(restaurantId);
+
+        if (restaurant == null) {
+            throw new RestaurantNotFoundException();
+        }
+
+        Page<Dish> dishPage = dishPersistencePort.getDishesByRestaurantAndCategory(restaurantId, categoryId, pageable);
+
+        List<Dish> activeDishes = new ArrayList<>();
+        for (Dish dish : dishPage.getContent()) {
+            if (dish.isActive()) {
+                activeDishes.add(dish);
+            }
+        }
+
+        return new PageImpl<>(activeDishes, pageable, dishPage.getTotalElements());
+    }
+
+
+
 
 }

@@ -7,6 +7,10 @@ import com.pragma.powerup.usermicroservice.domain.model.Restaurant;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
@@ -17,4 +21,9 @@ public interface IDishEntityMapper {
     DishEntity toEntity(Dish dish);
 
     Dish toDish(DishEntity dishEntity);
+
+    default Page<Dish> toDomainPage(Page<DishEntity> entityPage) {
+        List<Dish> dishes = entityPage.map(this::toDish).getContent();
+        return new PageImpl<>(dishes, entityPage.getPageable(), entityPage.getTotalElements());
+    }
 }
