@@ -14,6 +14,7 @@ public class Constants {
     public static final Object DISH_UPDATED_MESSAGE = "Updated dish";
     public static final Object DISH_UPDATED_STATUS_MESSAGE = "Status updated";
     public static final String PHONE_NUMBER_FORMAT_EXCEPTION = "Phone number format invalid";
+    public static final String ORDER_CREATED_MESSAGE = "You're order was created successfully";
     public static final String BAD_REQUEST_EXCEPTION = "Bad request. Try again please";
     public static final String DISH_CREATED_MESSAGE = "Dish created successfully";
     public static final String NIT_MUST_BE_NUMERIC_EXCEPTION = "Nit must be numeric";

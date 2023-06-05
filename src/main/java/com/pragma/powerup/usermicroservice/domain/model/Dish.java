@@ -1,7 +1,6 @@
 package com.pragma.powerup.usermicroservice.domain.model;
 
 public class Dish {
-
     private Long id;
     private String name;
     private int price;
