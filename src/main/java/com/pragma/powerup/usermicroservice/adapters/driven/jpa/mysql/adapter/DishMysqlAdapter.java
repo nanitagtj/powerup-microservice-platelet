@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RequiredArgsConstructor
 public class DishMysqlAdapter implements IDishPersistencePort {
     private final IDishRepository dishRepository;
@@ -28,11 +31,18 @@ public class DishMysqlAdapter implements IDishPersistencePort {
     }
 
     @Override
-    public Dish getDishById(Long id) {
-        DishEntity dishEntity = dishRepository.findById(id)
-                .orElseThrow(() -> new NoDataFoundException());
-        return dishEntityMapper.toDish(dishEntity);
+    public List<Dish> getDishesById(List<Long> ids) {
+        List<DishEntity> dishEntities = dishRepository.findByIdIn(ids);
+        if (dishEntities.isEmpty()) {
+            throw new NoDataFoundException();
+        }
+        List<Dish> dishes = new ArrayList<>();
+        for (DishEntity dishEntity : dishEntities) {
+            dishes.add(dishEntityMapper.toDish(dishEntity));
+        }
+        return dishes;
     }
+
 
     @Override
     public Page<Dish> getDishesByRestaurantAndCategory(Long restaurantId, Long categoryId, Pageable pageable) {
@@ -43,5 +53,14 @@ public class DishMysqlAdapter implements IDishPersistencePort {
         Page<DishEntity> dishEntityPage = dishRepository.getDishesByRestaurantAndCategory(restaurant, category, pageable);
         return dishEntityMapper.toDomainPage(dishEntityPage);
     }
+
+    @Override
+    public Dish getDishById(Long dishId) {
+        DishEntity dishEntity = dishRepository.findById(dishId)
+                .orElseThrow(() -> new NoDataFoundException());
+
+        return dishEntityMapper.toDish(dishEntity);
+    }
+
 
 }

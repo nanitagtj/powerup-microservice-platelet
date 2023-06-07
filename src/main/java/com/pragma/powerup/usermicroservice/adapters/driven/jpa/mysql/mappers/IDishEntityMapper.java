@@ -26,4 +26,6 @@ public interface IDishEntityMapper {
         List<Dish> dishes = entityPage.map(this::toDish).getContent();
         return new PageImpl<>(dishes, entityPage.getPageable(), entityPage.getTotalElements());
     }
+
+    List<Dish> toDishes(List<DishEntity> dishEntities);
 }

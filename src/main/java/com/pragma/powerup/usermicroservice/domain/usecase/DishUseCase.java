@@ -3,6 +3,7 @@ package com.pragma.powerup.usermicroservice.domain.usecase;
 import com.pragma.powerup.usermicroservice.configuration.security.jwt.JwtProvider;
 import com.pragma.powerup.usermicroservice.domain.api.IDishServicePort;
 import com.pragma.powerup.usermicroservice.domain.clientapi.IUserClientPort;
+import com.pragma.powerup.usermicroservice.domain.exceptions.DishNotFoundException;
 import com.pragma.powerup.usermicroservice.domain.exceptions.DuplicateRestaurantName;
 import com.pragma.powerup.usermicroservice.domain.exceptions.InvalidUserException;
 import com.pragma.powerup.usermicroservice.domain.exceptions.RestaurantNotFoundException;
@@ -88,6 +89,15 @@ public class DishUseCase implements IDishServicePort {
     }
 
     @Override
+    public Dish getDishById(Long dishId) {
+        Dish dish = dishPersistencePort.getDishById(dishId);
+        if (dish == null) {
+            throw new DishNotFoundException();
+        }
+        return dish;
+    }
+
+    @Override
     public Page<Dish> getDishesByRestaurantAndCategory(Long restaurantId, Long categoryId, Pageable pageable) {
         Restaurant restaurant = restaurantPersistencePort.getRestaurantById(restaurantId);
 
@@ -107,7 +117,14 @@ public class DishUseCase implements IDishServicePort {
         return new PageImpl<>(activeDishes, pageable, dishPage.getTotalElements());
     }
 
-
+    @Override
+    public List<Dish> getDishesById(List<Long> ids) {
+        List<Dish> dishes = dishPersistencePort.getDishesById(ids);
+        if (dishes.isEmpty()) {
+            throw new DishNotFoundException();
+        }
+        return dishes;
+    }
 
 
 }

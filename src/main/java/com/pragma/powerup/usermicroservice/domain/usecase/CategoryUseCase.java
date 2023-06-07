@@ -7,7 +7,7 @@ import com.pragma.powerup.usermicroservice.domain.spi.ICategoryPersistencePort;
 import java.util.List;
 
 public class CategoryUseCase implements ICategoryServicePort {
-    private final ICategoryPersistencePort categoryPersistencePort; // Asumiendo que tienes una implementación del repositorio
+    private final ICategoryPersistencePort categoryPersistencePort;
 
     public CategoryUseCase(ICategoryPersistencePort categoryPersistencePort) {
         this.categoryPersistencePort = categoryPersistencePort;

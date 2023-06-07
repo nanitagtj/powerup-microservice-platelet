@@ -19,18 +19,26 @@ public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false)
     private String status;
+
     @Column(nullable = false)
     private Long clientId;
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Long assignedEmployeeId;
+
+    @ManyToOne(optional = false)
     @JoinColumn(name = "restaurant_id", referencedColumnName = "id")
     private RestaurantEntity restaurant;
-    @Column(nullable = false)
-    private List<Dish> dishes;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "order_id")
+    private List<DishEntity> dishes;
+
     @Column(nullable = false)
     private LocalDateTime dateTime;
+
     @Column(nullable = false)
     private double amount;
 }

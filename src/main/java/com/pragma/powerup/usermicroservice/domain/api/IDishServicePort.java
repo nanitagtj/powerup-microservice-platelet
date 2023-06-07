@@ -5,11 +5,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface IDishServicePort {
 
     void createDish(Dish dish, HttpServletRequest req);
     void updateDishStatus(Long id, boolean active, HttpServletRequest request);
     void updateDish(Long id, Dish dish, HttpServletRequest request);
+
+    Dish getDishById(Long dishId);
+
     Page<Dish> getDishesByRestaurantAndCategory(Long restaurantId, Long categoryId, Pageable pageable);
 
+    List<Dish> getDishesById(List<Long> ids);
 }

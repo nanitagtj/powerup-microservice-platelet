@@ -35,21 +35,8 @@ public class JwtTokenRestaurantFilter extends OncePerRequestFilter {
             String token = getToken(request);
             if (token != null && jwtProvider.validateToken(token)) {
                 List<String> roles = jwtProvider.getRoleFromToken(token);
-                if (isCreateRestaurantRequest(request) && !roles.contains("ROLE_ADMIN")) {
-                    throw new AuthenticationException("Unauthorized");
-                }
 
-                if (isCreateDishRequest(request) && !roles.contains("ROLE_OWNER")){
-                    throw new AuthenticationException("Unauthorized");
-                }
-
-                if (isUpdateDishRequest(request) && !roles.contains("ROLE_OWNER")){
-                    throw new AuthenticationException("Unauthorized");
-                }
-
-                if (isUpdateStatusDishRequest(request) && !roles.contains("ROLE_OWNER")){
-                    throw new AuthenticationException("Unauthorized");
-                }
+                validateRoleForRequest(request, roles);
 
                 filterChain.doFilter(request, response);
                 return;
@@ -58,6 +45,28 @@ public class JwtTokenRestaurantFilter extends OncePerRequestFilter {
             throw new AuthenticationException("Unauthorized");
         } catch (AuthenticationException e) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
+        }
+    }
+
+    private void validateRoleForRequest(HttpServletRequest request, List<String> roles) throws AuthenticationException {
+        if (isCreateRestaurantRequest(request) && !roles.contains("ROLE_ADMIN")) {
+            throw new AuthenticationException("Unauthorized");
+        }
+
+        if (isCreateDishRequest(request) && !roles.contains("ROLE_OWNER")) {
+            throw new AuthenticationException("Unauthorized");
+        }
+
+        if (isUpdateDishRequest(request) && !roles.contains("ROLE_OWNER")) {
+            throw new AuthenticationException("Unauthorized");
+        }
+
+        if (isUpdateStatusDishRequest(request) && !roles.contains("ROLE_OWNER")) {
+            throw new AuthenticationException("Unauthorized");
+        }
+
+        if (isCreateOrder(request) && !roles.contains("ROLE_CLIENT")) {
+            throw new AuthenticationException("Unauthorized");
         }
     }
 
@@ -90,6 +99,11 @@ public class JwtTokenRestaurantFilter extends OncePerRequestFilter {
     private boolean isUpdateStatusDishRequest(HttpServletRequest request) {
         return request.getMethod().equalsIgnoreCase("PUT")
                 && request.getRequestURI().contains("/platelet/{id}/status");
+    }
+
+    private boolean isCreateOrder(HttpServletRequest request) {
+        return request.getMethod().equalsIgnoreCase("POST")
+                && request.getRequestURI().contains("/platelet/dish");
     }
 
     private String getToken(HttpServletRequest request) {
