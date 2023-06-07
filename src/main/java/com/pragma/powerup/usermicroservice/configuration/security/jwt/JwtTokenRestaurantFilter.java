@@ -34,39 +34,31 @@ public class JwtTokenRestaurantFilter extends OncePerRequestFilter {
 
             String token = getToken(request);
             if (token != null && jwtProvider.validateToken(token)) {
-                List<String> roles = jwtProvider.getRoleFromToken(token);
+                String role = jwtProvider.getRoleFromToken(token);
+                if (isCreateRestaurantRequest(request)) {
+                    if (!role.equals("ROLE_ADMIN")) {
+                        throw new AuthenticationException("Unauthorized");
+                    }
+                } else if (isCreateDishRequest(request) || isUpdateDishRequest(request) || isUpdateStatusDishRequest(request)) {
+                    if (!role.equals("ROLE_OWNER")) {
+                        throw new AuthenticationException("Unauthorized");
+                    }
+                } else if (isCreateOrder(request)) {
+                    if (!role.equals("ROLE_CLIENT")) {
+                        throw new AuthenticationException("Unauthorized");
+                    }
+                } else {
 
-                validateRoleForRequest(request, roles);
-
-                filterChain.doFilter(request, response);
-                return;
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+            } else {
+                throw new AuthenticationException("Unauthorized");
             }
 
-            throw new AuthenticationException("Unauthorized");
+            filterChain.doFilter(request, response);
         } catch (AuthenticationException e) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
-        }
-    }
-
-    private void validateRoleForRequest(HttpServletRequest request, List<String> roles) throws AuthenticationException {
-        if (isCreateRestaurantRequest(request) && !roles.contains("ROLE_ADMIN")) {
-            throw new AuthenticationException("Unauthorized");
-        }
-
-        if (isCreateDishRequest(request) && !roles.contains("ROLE_OWNER")) {
-            throw new AuthenticationException("Unauthorized");
-        }
-
-        if (isUpdateDishRequest(request) && !roles.contains("ROLE_OWNER")) {
-            throw new AuthenticationException("Unauthorized");
-        }
-
-        if (isUpdateStatusDishRequest(request) && !roles.contains("ROLE_OWNER")) {
-            throw new AuthenticationException("Unauthorized");
-        }
-
-        if (isCreateOrder(request) && !roles.contains("ROLE_CLIENT")) {
-            throw new AuthenticationException("Unauthorized");
         }
     }
 

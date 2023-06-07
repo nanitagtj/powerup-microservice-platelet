@@ -3,13 +3,9 @@ package com.pragma.powerup.usermicroservice.adapters.driving.http.mapper;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request.OrderRequestDto;
 import com.pragma.powerup.usermicroservice.domain.model.Dish;
 import com.pragma.powerup.usermicroservice.domain.model.Order;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
-import org.mapstruct.ReportingPolicy;
+import org.mapstruct.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @Mapper(componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
@@ -17,15 +13,11 @@ import java.util.stream.Collectors;
 public interface IOrderRequestMapper {
 
     @Mapping(source = "restaurantId", target = "restaurant.id")
-    @Mapping(source = "dishesId", target = "dishes", qualifiedByName = "toDishList")
+    @Mapping(source = "dishQuantities", target = "dishQuantities")
     Order toOrder(OrderRequestDto orderRequestDto);
 
-    @Named("toDishList")
-    default List<Dish> toDishList(List<Long> dishesId) {
-        return dishesId.stream()
-                .map(this::mapToDish)
-                .collect(Collectors.toList());
-    }
+    @IterableMapping(qualifiedByName = "toDishQuantitiesMap")
+    Map<Dish, Long> toDishQuantitiesMap(Map<Long, Long> dishQuantities);
 
     default Dish mapToDish(Long dishId) {
         Dish dish = new Dish();
@@ -33,9 +25,4 @@ public interface IOrderRequestMapper {
         return dish;
     }
 
-    default List<Long> mapDishListToIds(List<Dish> dishes) {
-        return dishes.stream()
-                .map(Dish::getId)
-                .collect(Collectors.toList());
-    }
 }

@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.Map;
+
 @AllArgsConstructor
 @Getter
 public class OrderRequestDto {
@@ -13,6 +15,6 @@ public class OrderRequestDto {
     @Column(nullable = false)
     private Long restaurantId;
     @Column(nullable = false)
-    private List<Long> dishesId;
+    private Map<Long, Long> dishQuantities;
 
 }

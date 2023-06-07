@@ -1,5 +1,6 @@
 package com.pragma.powerup.usermicroservice.domain.usecase;
 
+import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.UserResponseDto;
 import com.pragma.powerup.usermicroservice.configuration.security.jwt.JwtProvider;
 import com.pragma.powerup.usermicroservice.domain.api.IDishServicePort;
 import com.pragma.powerup.usermicroservice.domain.clientapi.IUserClientPort;
@@ -24,6 +25,8 @@ public class DishUseCase implements IDishServicePort {
     private final IDishPersistencePort dishPersistencePort;
     private final IRestaurantPersistencePort restaurantPersistencePort;
     private final IUserClientPort userClientPort;
+
+    private static final Long OWNER_ROLE_ID = 2L;
 
     @Autowired
     JwtProvider jwtProvider;

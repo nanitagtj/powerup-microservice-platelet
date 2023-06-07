@@ -17,9 +17,13 @@ public class JwtProvider {
     @Value("${jwt.secret}")
     private String secret;
 
-    public List<String> getRoleFromToken(String token) {
+    public String getRoleFromToken(String token) {
         Claims claims = Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(token).getBody();
-        return claims.get(ROLE_CLAIM,List.class);
+        List<String> roles = claims.get(ROLE_CLAIM, List.class);
+        if (roles != null && !roles.isEmpty()) {
+            return roles.get(0);
+        }
+        return null;
     }
 
     public Long getUserIdFromToken(String token) {

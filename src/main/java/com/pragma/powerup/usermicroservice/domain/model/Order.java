@@ -2,6 +2,7 @@ package com.pragma.powerup.usermicroservice.domain.model;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 public class Order {
     private Long id;
@@ -9,25 +10,22 @@ public class Order {
     private Long clientId;
     private Long assignedEmployeeId;
     private Restaurant restaurant;
-    private List<Dish> dishes;
+    private Map<Dish, Long> dishQuantities;
     private LocalDateTime dateTime;
     private double amount;
 
     public Order() {
     }
 
-    public Order(Long id, String status, Long clientId, Long assignedEmployeeId, Restaurant restaurant, List<Dish> dishes, LocalDateTime dateTime, double amount) {
+    public Order(Long id, String status, Long clientId, Long assignedEmployeeId, Restaurant restaurant, Map<Dish, Long> dishQuantities, LocalDateTime dateTime, double amount) {
         this.id = id;
         this.status = status;
         this.clientId = clientId;
         this.assignedEmployeeId = assignedEmployeeId;
         this.restaurant = restaurant;
-        this.dishes = dishes;
+        this.dishQuantities = dishQuantities;
         this.dateTime = dateTime;
         this.amount = amount;
-    }
-
-    public Order(Long clientId, Long restaurantId, List<Dish> dishes, LocalDateTime dateTime, double amount, String status) {
     }
 
     public Long getId() {
@@ -70,12 +68,12 @@ public class Order {
         this.restaurant = restaurant;
     }
 
-    public List<Dish> getDishes() {
-        return dishes;
+    public Map<Dish, Long> getDishQuantities() {
+        return dishQuantities;
     }
 
-    public void setDishes(List<Dish> dishes) {
-        this.dishes = dishes;
+    public void setDishQuantities(Map<Dish, Long> dishQuantities) {
+        this.dishQuantities = dishQuantities;
     }
 
     public LocalDateTime getDateTime() {
@@ -94,4 +92,3 @@ public class Order {
         this.amount = amount;
     }
 }
-
