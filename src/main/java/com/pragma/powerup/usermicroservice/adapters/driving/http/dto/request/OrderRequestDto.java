@@ -1,11 +1,9 @@
 package com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request;
 
-import com.pragma.powerup.usermicroservice.domain.model.Dish;
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.List;
 import java.util.Map;
 
 @AllArgsConstructor

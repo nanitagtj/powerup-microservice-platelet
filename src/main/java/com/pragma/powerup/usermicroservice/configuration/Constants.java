@@ -18,6 +18,7 @@ public class Constants {
     public static final String BAD_REQUEST_EXCEPTION = "Bad request. Try again please";
     public static final String DISH_CREATED_MESSAGE = "Dish created successfully";
     public static final String NIT_MUST_BE_NUMERIC_EXCEPTION = "Nit must be numeric";
+    public static final String ORDER_IN_PROGRESS_EXCEPTION = "You have an order in progress";
     public static final String RESPONSE_MESSAGE_KEY = "message";
     public static final String RESPONSE_ERROR_MESSAGE_KEY = "error";
     public static final String WRONG_CREDENTIALS_MESSAGE = "Wrong credentials or role not allowed";

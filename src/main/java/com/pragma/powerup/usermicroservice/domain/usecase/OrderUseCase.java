@@ -2,6 +2,7 @@ package com.pragma.powerup.usermicroservice.domain.usecase;
 
 import com.pragma.powerup.usermicroservice.configuration.security.jwt.JwtProvider;
 import com.pragma.powerup.usermicroservice.domain.api.IOrderServicePort;
+import com.pragma.powerup.usermicroservice.domain.exceptions.OrderInProgressException;
 import com.pragma.powerup.usermicroservice.domain.model.Dish;
 import com.pragma.powerup.usermicroservice.domain.model.Order;
 import com.pragma.powerup.usermicroservice.domain.model.Restaurant;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class OrderUseCase implements IOrderServicePort {
@@ -29,13 +31,15 @@ public class OrderUseCase implements IOrderServicePort {
     @Autowired
     JwtProvider jwtProvider;
 
-
-
     public Order createOrder(Order order, HttpServletRequest request) {
         LocalDateTime dateTime = LocalDateTime.now();
         String status = "Awaiting";
         String token = request.getHeader("Authorization");
         Long clientId = jwtProvider.getUserIdFromToken(token);
+
+        if (hasInProgressOrder(clientId)) {
+            throw new OrderInProgressException();
+        }
 
         Restaurant restaurant = restaurantPersistencePort.getRestaurantById(order.getRestaurant().getId());
 
@@ -61,6 +65,18 @@ public class OrderUseCase implements IOrderServicePort {
         newOrder.setAmount(amount);
 
         return orderPersistencePort.saveOrder(newOrder);
+    }
+
+    private boolean hasInProgressOrder(Long clientId) {
+        List<Order> clientOrders = orderPersistencePort.getOrdersByClientId(clientId);
+
+        for (Order order : clientOrders) {
+            if (order.getStatus().equalsIgnoreCase("In process") || order.getStatus().equalsIgnoreCase("Awaiting") || order.getStatus().equalsIgnoreCase("Ready")) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

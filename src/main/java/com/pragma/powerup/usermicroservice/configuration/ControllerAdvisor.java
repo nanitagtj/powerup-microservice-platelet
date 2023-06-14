@@ -5,6 +5,7 @@ import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.exceptions.
 import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.exceptions.PhoneNumberFormatException;
 import com.pragma.powerup.usermicroservice.domain.exceptions.DuplicateRestaurantName;
 import com.pragma.powerup.usermicroservice.domain.exceptions.InvalidUserException;
+import com.pragma.powerup.usermicroservice.domain.exceptions.OrderInProgressException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -78,4 +79,12 @@ public class ControllerAdvisor {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(errorMap);
     }
+
+    @ExceptionHandler(OrderInProgressException.class)
+    public ResponseEntity<Map<String, String>> handleOrderInProgressException(OrderInProgressException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, ORDER_IN_PROGRESS_EXCEPTION));
+    }
+
+
 }
