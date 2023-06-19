@@ -5,16 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Map;
-
 @AllArgsConstructor
 @Getter
 @Setter
-public class OrderRequestDto {
+public class EmployeeRestaurantRequestDto {
 
     @Column(nullable = false)
-    private Long restaurantId;
+    private Long employeeId;
     @Column(nullable = false)
-    private Map<Long, Long> dishQuantities;
+    private Long restaurantId;
 
 }

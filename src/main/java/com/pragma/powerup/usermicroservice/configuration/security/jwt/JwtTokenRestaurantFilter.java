@@ -39,7 +39,7 @@ public class JwtTokenRestaurantFilter extends OncePerRequestFilter {
                     if (!role.equals("ROLE_ADMIN")) {
                         throw new AuthenticationException("Unauthorized");
                     }
-                } else if (isCreateDishRequest(request) || isUpdateDishRequest(request) || isUpdateStatusDishRequest(request)) {
+                } else if (isCreateDishRequest(request) || isUpdateDishRequest(request) || isUpdateStatusDishRequest(request) || isAssignEmployeeToRestaurantRequest(request)) {
                     if (!role.equals("ROLE_OWNER")) {
                         throw new AuthenticationException("Unauthorized");
                     }
@@ -47,7 +47,11 @@ public class JwtTokenRestaurantFilter extends OncePerRequestFilter {
                     if (!role.equals("ROLE_CLIENT")) {
                         throw new AuthenticationException("Unauthorized");
                     }
-                } else {
+                } else if (isPageOrders(request)) {
+                    if (!role.equals("ROLE_EMPLOYEE")) {
+                        throw new AuthenticationException("Unauthorized");
+                    }
+                } else{
 
                     filterChain.doFilter(request, response);
                     return;
@@ -96,6 +100,16 @@ public class JwtTokenRestaurantFilter extends OncePerRequestFilter {
     private boolean isCreateOrder(HttpServletRequest request) {
         return request.getMethod().equalsIgnoreCase("POST")
                 && request.getRequestURI().contains("/platelet/dish");
+    }
+
+    private boolean isAssignEmployeeToRestaurantRequest(HttpServletRequest request) {
+        return request.getMethod().equalsIgnoreCase("POST")
+                && request.getRequestURI().contains("/platelet/employee/assign-restaurant");
+    }
+
+    private boolean isPageOrders(HttpServletRequest request) {
+        return request.getMethod().equalsIgnoreCase("GET")
+                && request.getRequestURI().contains("/platelet/orders");
     }
 
     private String getToken(HttpServletRequest request) {

@@ -4,6 +4,7 @@ import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.feignclient
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.UserResponseDto;
 import com.pragma.powerup.usermicroservice.domain.clientapi.IUserClientPort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 @RequiredArgsConstructor
 public class UserClientAdapter implements IUserClientPort {
@@ -14,4 +15,5 @@ public class UserClientAdapter implements IUserClientPort {
     public UserResponseDto getUserById(Long id, String header) {
         return userFeignClient.getUserById(id, header);
     }
+
 }

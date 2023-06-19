@@ -4,4 +4,5 @@ import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.Us
 
 public interface IUserClientPort {
     UserResponseDto getUserById(Long id, String header);
+
 }

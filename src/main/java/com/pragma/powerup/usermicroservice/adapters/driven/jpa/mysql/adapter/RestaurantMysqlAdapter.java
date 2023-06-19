@@ -1,5 +1,6 @@
 package com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.adapter;
 
+import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.entity.EmployeeRestaurantEntity;
 import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.entity.RestaurantEntity;
 import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.exceptions.NoDataFoundException;
 import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.mappers.IRestaurantEntityMapper;
@@ -9,6 +10,8 @@ import com.pragma.powerup.usermicroservice.domain.model.Restaurant;
 import com.pragma.powerup.usermicroservice.domain.spi.IRestaurantPersistencePort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
+
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class RestaurantMysqlAdapter implements IRestaurantPersistencePort {
@@ -43,4 +46,13 @@ public class RestaurantMysqlAdapter implements IRestaurantPersistencePort {
         }
         return restaurantEntityMapper.toRestaurantPage(restaurantEntityPage);
     }
+
+    @Override
+    public Long getRestaurantOwnerId(Long restaurantId) {
+        RestaurantEntity restaurantEntity = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new NoDataFoundException());
+
+        return restaurantEntity.getIdOwner();
+    }
+
 }

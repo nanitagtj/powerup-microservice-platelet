@@ -7,11 +7,15 @@ import com.pragma.powerup.usermicroservice.domain.model.Dish;
 import com.pragma.powerup.usermicroservice.domain.model.Order;
 import com.pragma.powerup.usermicroservice.domain.model.Restaurant;
 import com.pragma.powerup.usermicroservice.domain.spi.IDishPersistencePort;
+import com.pragma.powerup.usermicroservice.domain.spi.IEmployeeRestaurantPersistencePort;
 import com.pragma.powerup.usermicroservice.domain.spi.IOrderPersistencePort;
 import com.pragma.powerup.usermicroservice.domain.spi.IRestaurantPersistencePort;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
+import javax.naming.AuthenticationException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -21,11 +25,13 @@ public class OrderUseCase implements IOrderServicePort {
     private final IDishPersistencePort dishPersistencePort;
     private final IOrderPersistencePort orderPersistencePort;
     private final IRestaurantPersistencePort restaurantPersistencePort;
+    private final IEmployeeRestaurantPersistencePort employeeRestaurantPersistencePort;
 
-    public OrderUseCase(IDishPersistencePort dishPersistencePort, IOrderPersistencePort orderPersistencePort, IRestaurantPersistencePort restaurantPersistencePort) {
+    public OrderUseCase(IDishPersistencePort dishPersistencePort, IOrderPersistencePort orderPersistencePort, IRestaurantPersistencePort restaurantPersistencePort, IEmployeeRestaurantPersistencePort employeeRestaurantPersistencePort) {
         this.dishPersistencePort = dishPersistencePort;
         this.orderPersistencePort = orderPersistencePort;
         this.restaurantPersistencePort = restaurantPersistencePort;
+        this.employeeRestaurantPersistencePort = employeeRestaurantPersistencePort;
     }
 
     @Autowired
@@ -77,6 +83,25 @@ public class OrderUseCase implements IOrderServicePort {
         }
 
         return false;
+    }
+
+    public Page<Order> getOrdersByStatusAndRestaurant(String status, Long restaurantId, Pageable pageable, HttpServletRequest request) throws AuthenticationException {
+        String token = request.getHeader("Authorization");
+        Long employeeId = jwtProvider.getUserIdFromToken(token);
+
+        boolean isEmployeeAssignedToRestaurant = employeeRestaurantPersistencePort.isEmployeeAssignedToRestaurant(employeeId, restaurantId);
+        if (!isEmployeeAssignedToRestaurant) {
+            throw new AuthenticationException("Unauthorized");
+        }
+
+        Restaurant restaurant = restaurantPersistencePort.getRestaurantById(restaurantId);
+        if (restaurant == null) {
+            throw new IllegalArgumentException("Invalid restaurant ID");
+        }
+
+        Page<Order> orders = orderPersistencePort.getOrdersByStatusAndRestaurant(status, restaurant.getId(), pageable);
+
+        return orders;
     }
 
 }

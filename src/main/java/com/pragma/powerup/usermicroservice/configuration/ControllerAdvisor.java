@@ -3,9 +3,7 @@ package com.pragma.powerup.usermicroservice.configuration;
 import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.exceptions.NitMustBeNumericException;
 import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.exceptions.NoDataFoundException;
 import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.exceptions.PhoneNumberFormatException;
-import com.pragma.powerup.usermicroservice.domain.exceptions.DuplicateRestaurantName;
-import com.pragma.powerup.usermicroservice.domain.exceptions.InvalidUserException;
-import com.pragma.powerup.usermicroservice.domain.exceptions.OrderInProgressException;
+import com.pragma.powerup.usermicroservice.domain.exceptions.*;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -85,6 +83,20 @@ public class ControllerAdvisor {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, ORDER_IN_PROGRESS_EXCEPTION));
     }
-
+    @ExceptionHandler(EmployeeAssignedException.class)
+    public ResponseEntity<Map<String, String>> handleEmployeeAssignedException(EmployeeAssignedException employeeAssignedException) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, EMPLOYEE_ASSIGNED_EXCEPTION));
+    }
+    @ExceptionHandler(IsOwnerException.class)
+    public ResponseEntity<Map<String, String>> handleIsOwnerException(IsOwnerException isOwnerException) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, IS_OWNER_EXCEPTION));
+    }
+    @ExceptionHandler(EmployeeAssignedToTheSameRestaurantException.class)
+    public ResponseEntity<Map<String, String>> handleEmployeeAssignedToTheSameRestaurantException(EmployeeAssignedToTheSameRestaurantException employeeAssignedToTheSameRestaurantException) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, SAME_RESTAURANT_EXCEPTION));
+    }
 
 }
