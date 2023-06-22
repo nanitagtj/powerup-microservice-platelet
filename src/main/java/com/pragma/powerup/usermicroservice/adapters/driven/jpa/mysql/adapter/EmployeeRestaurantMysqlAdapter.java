@@ -29,4 +29,9 @@ public class EmployeeRestaurantMysqlAdapter implements IEmployeeRestaurantPersis
         EmployeeRestaurantEntity existingAssignment = employeeRestaurantRepository.findByEmployeeIdAndRestaurantId(employeeId, restaurantId);
         return existingAssignment != null;
     }
+
+    @Override
+    public EmployeeRestaurantEntity getRestaurantEmployee(Long employeeId) {
+        return employeeRestaurantRepository.findByEmployeeId(employeeId);
+    }
 }

@@ -7,8 +7,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import javax.naming.AuthenticationException;
+import java.util.List;
 
 public interface IOrderHandler {
-    OrderResponseDto createOrder(OrderRequestDto orderRequestDto, HttpServletRequest request);
-    Page<OrderResponseDto> getOrdersByStatusAndRestaurant( String status, Long restaurantId, Pageable pageable, HttpServletRequest request) throws AuthenticationException;
+    void createOrder(OrderRequestDto orderRequestDto, HttpServletRequest request);
+    List<OrderResponseDto> getRestaurantOrders(int pageNumber, int pageSize, String statusOrder);
 }

@@ -23,9 +23,11 @@ import org.springframework.web.bind.annotation.*;
 import javax.naming.AuthenticationException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.pragma.powerup.usermicroservice.configuration.Constants.ORDER_CREATED_MESSAGE;
+import static com.pragma.powerup.usermicroservice.configuration.Constants.WRONG_CREDENTIALS_MESSAGE;
 
 @RestController
 @RequestMapping("/platelet")
@@ -42,26 +44,23 @@ public class OrderController {
                     @ApiResponse(responseCode = "409", description = "order already exists",
                             content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error")))})
     @PostMapping("/order")
-    public ResponseEntity<Map<String, Object>> createOrder(@Validated @RequestBody OrderRequestDto orderRequestDto, HttpServletRequest request) {
-        OrderResponseDto orderResponseDto = orderHandler.createOrder(orderRequestDto, request);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", ORDER_CREATED_MESSAGE);
-        response.put("order", orderResponseDto);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseEntity<Map<String, String>> saveOrder(@RequestBody OrderRequestDto orderRequestDto, HttpServletRequest request) {
+        orderHandler.createOrder(orderRequestDto, request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY, ORDER_CREATED_MESSAGE));
     }
 
-    @Operation(summary = "Get orders by status and restaurant",
+    @Operation(summary = "Get orders from a restaurant",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Successful operation",
-                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/OrderResponseDto"))),
-                    @ApiResponse(responseCode = "400", description = "Invalid status value",
-                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error")))})
+                    @ApiResponse(responseCode = "200", description = "[{}]",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Message"))),
+                    @ApiResponse(responseCode = "401", description = WRONG_CREDENTIALS_MESSAGE,
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Message"))),
+
+            })
     @GetMapping("/orders")
-    public ResponseEntity<Page<OrderResponseDto>> getOrdersByStatusAndRestaurant(@RequestParam String status, @RequestParam(required = false) Long restaurantId, Pageable pageable, HttpServletRequest request) throws AuthenticationException {
-        Page<OrderResponseDto> orderPage = orderHandler.getOrdersByStatusAndRestaurant(status, restaurantId, pageable, request);
-        return ResponseEntity.ok(orderPage);
+    public ResponseEntity<List<OrderResponseDto>> getOrders(@RequestParam int pageNumber, @RequestParam int pageSize, @RequestParam String statusOrder) {
+        return ResponseEntity.ok(orderHandler.getRestaurantOrders(pageNumber, pageSize, statusOrder));
     }
 
 }

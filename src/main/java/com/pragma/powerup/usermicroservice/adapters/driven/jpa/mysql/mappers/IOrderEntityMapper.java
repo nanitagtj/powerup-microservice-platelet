@@ -2,10 +2,9 @@ package com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.mappers;
 
 import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.entity.OrderEntity;
 import com.pragma.powerup.usermicroservice.domain.model.Order;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.ReportingPolicy;
+import org.mapstruct.*;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 import java.util.List;
 
@@ -13,18 +12,23 @@ import java.util.List;
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
         unmappedSourcePolicy = ReportingPolicy.IGNORE)
 public interface IOrderEntityMapper {
-    @Mapping(target = "restaurant", source = "order.restaurant")
-    @Mapping(target = "dishQuantities", source = "order.dishQuantities")
+
+    @Mapping(target = "status", source = "status")
+    @Mapping(target = "idRestaurant.id", source = "idRestaurant.id")
     OrderEntity toEntity(Order order);
-    @Mapping(target = "restaurant", source = "restaurant")
-    @Mapping(target = "dishQuantities", ignore = true)
-    Order toDomain(OrderEntity orderEntity);
+
+    @Mapping(target = "status", source = "status")
+    @Mapping(target = "idRestaurant.id", source = "idRestaurant.id")
+    List<OrderEntity> toEntity(List<Order> order);
+
+
+    @Mapping(target = "status", source = "status")
+    @Mapping(target = "idRestaurant.id", source = "idRestaurant.id")
+    Order toOrder(OrderEntity order);
+
+    @Mapping(target = "status", source = "status")
+    @Mapping(target = "idRestaurant.id", source = "idRestaurant.id")
+    List<Order> toOrder(Page<OrderEntity> order);
 
     List<Order> toDomainList(List<OrderEntity> orderEntities);
-
-    default Page<Order> toDomainPage(Page<OrderEntity> orderEntities) {
-        return orderEntities.map(this::toDomain);
-    }
-
-
 }

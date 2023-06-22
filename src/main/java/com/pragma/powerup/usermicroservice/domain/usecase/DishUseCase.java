@@ -1,6 +1,5 @@
 package com.pragma.powerup.usermicroservice.domain.usecase;
 
-import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.UserResponseDto;
 import com.pragma.powerup.usermicroservice.configuration.security.jwt.JwtProvider;
 import com.pragma.powerup.usermicroservice.domain.api.IDishServicePort;
 import com.pragma.powerup.usermicroservice.domain.clientapi.IUserClientPort;
@@ -105,7 +104,7 @@ public class DishUseCase implements IDishServicePort {
         Restaurant restaurant = restaurantPersistencePort.getRestaurantById(restaurantId);
 
         if (restaurant == null) {
-            throw new RestaurantNotFoundException();
+            throw new RestaurantNotFoundException(restaurantId);
         }
 
         Page<Dish> dishPage = dishPersistencePort.getDishesByRestaurantAndCategory(restaurantId, categoryId, pageable);

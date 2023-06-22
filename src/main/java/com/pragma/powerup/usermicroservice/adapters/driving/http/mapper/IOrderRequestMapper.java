@@ -1,27 +1,27 @@
 package com.pragma.powerup.usermicroservice.adapters.driving.http.mapper;
 
+import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request.OrderDishReqDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request.OrderRequestDto;
 import com.pragma.powerup.usermicroservice.domain.model.Dish;
 import com.pragma.powerup.usermicroservice.domain.model.Order;
+import com.pragma.powerup.usermicroservice.domain.model.OrderDish;
 import org.mapstruct.*;
 
-import java.util.Map;
 
 @Mapper(componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
         unmappedSourcePolicy = ReportingPolicy.IGNORE)
 public interface IOrderRequestMapper {
+    @Mapping(target = "idRestaurant.id", source = "restaurantId")
+    @IterableMapping(elementTargetType = OrderDish.class)
+    Order toOrder(OrderRequestDto orderReqDto);
 
-    @Mapping(source = "restaurantId", target = "restaurant.id")
-    @Mapping(source = "dishQuantities", target = "dishQuantities")
-    Order toOrder(OrderRequestDto orderRequestDto);
+    @Mapping(target = "dish.id", source = "dishId")
+    OrderDish orderDishReqDtoToOrderDish(OrderDishReqDto orderDishReqDto);
 
-    @IterableMapping(qualifiedByName = "toDishQuantitiesMap")
-    Map<Dish, Long> toDishQuantitiesMap(Map<Long, Long> dishQuantities);
-
-    default Dish mapToDish(Long dishId) {
+    default Dish map(Long value) {
         Dish dish = new Dish();
-        dish.setId(dishId);
+        dish.setId(value);
         return dish;
     }
 

@@ -1,28 +1,30 @@
 package com.pragma.powerup.usermicroservice.domain.model;
 
+
 import java.time.LocalDateTime;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Order {
     private Long id;
     private String status;
     private Long clientId;
     private Long assignedEmployeeId;
-    private Restaurant restaurant;
-    private Map<Dish, Long> dishQuantities;
+    private Restaurant idRestaurant;
+    private List<OrderDish> orderDishes;
     private LocalDateTime dateTime;
     private double amount;
 
     public Order() {
     }
 
-    public Order(Long id, String status, Long clientId, Long assignedEmployeeId, Restaurant restaurant, Map<Dish, Long> dishQuantities, LocalDateTime dateTime, double amount) {
+    public Order(Long id, String status, Long clientId, Long assignedEmployeeId, Restaurant idRestaurant, List<OrderDish> orderDishes, LocalDateTime dateTime, double amount) {
         this.id = id;
         this.status = status;
         this.clientId = clientId;
         this.assignedEmployeeId = assignedEmployeeId;
-        this.restaurant = restaurant;
-        this.dishQuantities = dishQuantities;
+        this.idRestaurant = idRestaurant;
+        this.orderDishes = orderDishes != null ? orderDishes : new ArrayList<>();
         this.dateTime = dateTime;
         this.amount = amount;
     }
@@ -59,20 +61,20 @@ public class Order {
         this.assignedEmployeeId = assignedEmployeeId;
     }
 
-    public Restaurant getRestaurant() {
-        return restaurant;
+    public Restaurant getIdRestaurant() {
+        return idRestaurant;
     }
 
-    public void setRestaurant(Restaurant restaurant) {
-        this.restaurant = restaurant;
+    public void setIdRestaurant(Restaurant idRestaurant) {
+        this.idRestaurant = idRestaurant;
     }
 
-    public Map<Dish, Long> getDishQuantities() {
-        return dishQuantities;
+    public List<OrderDish> getOrderDishes() {
+        return orderDishes;
     }
 
-    public void setDishQuantities(Map<Dish, Long> dishQuantities) {
-        this.dishQuantities = dishQuantities;
+    public void setOrderDishes(List<OrderDish> orderDishes) {
+        this.orderDishes = orderDishes;
     }
 
     public LocalDateTime getDateTime() {

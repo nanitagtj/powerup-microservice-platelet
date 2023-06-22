@@ -1,5 +1,6 @@
 package com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.Map;
+import java.util.List;
 
 @Entity
 @Table(name = "orders")
@@ -25,18 +26,13 @@ public class OrderEntity {
 
     @Column(nullable = false)
     private Long clientId;
+
     @Column(nullable = true)
     private Long assignedEmployeeId;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "restaurant_id", referencedColumnName = "id")
-    private RestaurantEntity restaurant;
-
-    @ElementCollection
-    @CollectionTable(name = "order_dishes", joinColumns = @JoinColumn(name = "order_id"))
-    @MapKeyJoinColumn(name = "dish_id")
-    @Column(name = "quantity")
-    private Map<DishEntity, Long> dishQuantities;
+    @ManyToOne
+    @JoinColumn(name = "id_restaurant", referencedColumnName = "id")
+    private RestaurantEntity idRestaurant;
 
     @Column(nullable = false)
     private LocalDateTime dateTime;

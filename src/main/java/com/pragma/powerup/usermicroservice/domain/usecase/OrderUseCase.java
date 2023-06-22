@@ -5,39 +5,34 @@ import com.pragma.powerup.usermicroservice.domain.api.IOrderServicePort;
 import com.pragma.powerup.usermicroservice.domain.exceptions.OrderInProgressException;
 import com.pragma.powerup.usermicroservice.domain.model.Dish;
 import com.pragma.powerup.usermicroservice.domain.model.Order;
-import com.pragma.powerup.usermicroservice.domain.model.Restaurant;
-import com.pragma.powerup.usermicroservice.domain.spi.IDishPersistencePort;
-import com.pragma.powerup.usermicroservice.domain.spi.IEmployeeRestaurantPersistencePort;
-import com.pragma.powerup.usermicroservice.domain.spi.IOrderPersistencePort;
-import com.pragma.powerup.usermicroservice.domain.spi.IRestaurantPersistencePort;
+import com.pragma.powerup.usermicroservice.domain.model.OrderDish;
+import com.pragma.powerup.usermicroservice.domain.spi.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
-import javax.naming.AuthenticationException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 
 public class OrderUseCase implements IOrderServicePort {
-    private final IDishPersistencePort dishPersistencePort;
+    private final IOrderDishPersistencePort orderDishPersistencePort;
     private final IOrderPersistencePort orderPersistencePort;
-    private final IRestaurantPersistencePort restaurantPersistencePort;
     private final IEmployeeRestaurantPersistencePort employeeRestaurantPersistencePort;
+    private final IDishPersistencePort dishPersistencePort;
 
-    public OrderUseCase(IDishPersistencePort dishPersistencePort, IOrderPersistencePort orderPersistencePort, IRestaurantPersistencePort restaurantPersistencePort, IEmployeeRestaurantPersistencePort employeeRestaurantPersistencePort) {
-        this.dishPersistencePort = dishPersistencePort;
+    public OrderUseCase(IOrderDishPersistencePort orderDishPersistencePort, IOrderPersistencePort orderPersistencePort, IEmployeeRestaurantPersistencePort employeeRestaurantPersistencePort, IDishPersistencePort dishPersistencePort) {
+        this.orderDishPersistencePort = orderDishPersistencePort;
         this.orderPersistencePort = orderPersistencePort;
-        this.restaurantPersistencePort = restaurantPersistencePort;
         this.employeeRestaurantPersistencePort = employeeRestaurantPersistencePort;
+        this.dishPersistencePort = dishPersistencePort;
     }
 
     @Autowired
     JwtProvider jwtProvider;
 
-    public Order createOrder(Order order, HttpServletRequest request) {
+    @Override
+    public void createOrder(Order order, HttpServletRequest request) {
         LocalDateTime dateTime = LocalDateTime.now();
         String status = "Awaiting";
         String token = request.getHeader("Authorization");
@@ -47,30 +42,27 @@ public class OrderUseCase implements IOrderServicePort {
             throw new OrderInProgressException();
         }
 
-        Restaurant restaurant = restaurantPersistencePort.getRestaurantById(order.getRestaurant().getId());
+        order.setClientId(clientId);
+        order.setDateTime(dateTime);
+        order.setStatus(status);
+        double amount = calculateTotalAmount(order.getOrderDishes());
+        order.setAmount(amount);
+        Order orderEntity = orderPersistencePort.saveOrder(order);
 
-        Map<Dish, Long> dishQuantities = new HashMap<>();
-        double amount = 0.0;
+        order.getOrderDishes().forEach(orderDish -> orderDish.setOrder(orderEntity));
+        orderDishPersistencePort.saveOrderDish(order.getOrderDishes());
+    }
 
-        for (Map.Entry<Dish, Long> entry : order.getDishQuantities().entrySet()) {
-            Dish dish = entry.getKey();
-            Long quantity = entry.getValue();
+    private double calculateTotalAmount(List<OrderDish> orderDishes) {
+        double totalAmount = 0.0;
+        for (OrderDish orderDish : orderDishes) {
+            Dish dish = orderDish.getDish();
             Dish persistedDish = dishPersistencePort.getDishById(dish.getId());
-            dishQuantities.put(persistedDish, quantity);
-
-            double dishPrice = persistedDish.getPrice();
-            amount += dishPrice * quantity;
+            if (persistedDish != null) {
+                totalAmount += persistedDish.getPrice() * orderDish.getQuantity();
+            }
         }
-
-        Order newOrder = new Order();
-        newOrder.setClientId(clientId);
-        newOrder.setRestaurant(restaurant);
-        newOrder.setDishQuantities(dishQuantities);
-        newOrder.setDateTime(dateTime);
-        newOrder.setStatus(status);
-        newOrder.setAmount(amount);
-
-        return orderPersistencePort.saveOrder(newOrder);
+        return totalAmount;
     }
 
     private boolean hasInProgressOrder(Long clientId) {
@@ -85,23 +77,32 @@ public class OrderUseCase implements IOrderServicePort {
         return false;
     }
 
-    public Page<Order> getOrdersByStatusAndRestaurant(String status, Long restaurantId, Pageable pageable, HttpServletRequest request) throws AuthenticationException {
-        String token = request.getHeader("Authorization");
-        Long employeeId = jwtProvider.getUserIdFromToken(token);
+    @Override
+    public List<Order> getRestaurantOrder(int pageNumber, int pageSize, String status, Long employeeId) {
+        validateRange(pageNumber, pageSize);
+        pageNumber -= 1;
+        Long idRestaurant = employeeRestaurantPersistencePort.getRestaurantEmployee(employeeId).getRestaurant().getId();
+        List<OrderDish> orderDishes = orderDishPersistencePort.getRestaurantOrderDish(status, idRestaurant);
+        List<Order> orders = orderPersistencePort.getRestaurantOrder(pageNumber, pageSize, status, idRestaurant);
 
-        boolean isEmployeeAssignedToRestaurant = employeeRestaurantPersistencePort.isEmployeeAssignedToRestaurant(employeeId, restaurantId);
-        if (!isEmployeeAssignedToRestaurant) {
-            throw new AuthenticationException("Unauthorized");
+        for (Order order : orders) {
+            for (OrderDish orderDish : orderDishes) {
+                if (order.getId() != null && order.getId().equals(orderDish.getOrder().getId())) {
+                    if (order.getOrderDishes() == null) {
+                        order.setOrderDishes(new ArrayList<>());
+                    }
+                    order.getOrderDishes().add(orderDish);
+                }
+            }
         }
-
-        Restaurant restaurant = restaurantPersistencePort.getRestaurantById(restaurantId);
-        if (restaurant == null) {
-            throw new IllegalArgumentException("Invalid restaurant ID");
-        }
-
-        Page<Order> orders = orderPersistencePort.getOrdersByStatusAndRestaurant(status, restaurant.getId(), pageable);
 
         return orders;
+    }
+
+    private void validateRange(int pageNumber, int pageSize) {
+        if (pageNumber <= 0 || pageSize <= 0) {
+            throw new IllegalArgumentException("La página y el tamaño de página deben ser mayores que cero.");
+        }
     }
 
 }

@@ -30,6 +30,13 @@ public class BeanConfiguration {
     private final IOrderEntityMapper orderEntityMapper;
     private final IEmployeeRestaurantRepository employeeRestaurantRepository;
     private final IEmployeeRestaurantEntityMapper employeeRestaurantEntityMapper;
+    private final IOrderDishRepository orderDishRepository;
+    private final IOrderDishEntityMapper orderDishEntityMapper;
+
+    @Bean
+    public IOrderDishPersistencePort orderDishPersistencePort() {
+        return new OrderDishMysqlAdapter(orderDishRepository, orderDishEntityMapper);
+    }
 
     @Bean
     public IRestaurantPersistencePort restaurantPersistencePort() {
@@ -68,7 +75,7 @@ public class BeanConfiguration {
     }
     @Bean
     public IOrderServicePort orderServicePort() {
-        return new OrderUseCase(dishPersistencePort(),orderPersistencePort(), restaurantPersistencePort(), employeeRestaurantPersistencePort());
+        return new OrderUseCase(orderDishPersistencePort(), orderPersistencePort(),employeeRestaurantPersistencePort(), dishPersistencePort());
     }
 
     @Bean

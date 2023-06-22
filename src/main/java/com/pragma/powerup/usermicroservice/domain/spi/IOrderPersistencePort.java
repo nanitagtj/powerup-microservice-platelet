@@ -10,5 +10,6 @@ import java.util.List;
 public interface IOrderPersistencePort {
     Order saveOrder(Order order);
     List<Order> getOrdersByClientId(Long clientId);
-    Page<Order> getOrdersByStatusAndRestaurant(String status, Long restaurantId, Pageable pageable);
+    List<Order> getRestaurantOrder(int pageNumber, int pageSize, String status, Long restaurantId);
+
 }
