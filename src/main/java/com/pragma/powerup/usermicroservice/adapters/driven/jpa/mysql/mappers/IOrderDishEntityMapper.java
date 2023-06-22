@@ -14,8 +14,10 @@ import java.util.List;
 public interface IOrderDishEntityMapper {
     @Mapping(target = "order.id", source = "order.id")
     @Mapping(target = "dish.id", source = "dish.id")
+    OrderDishEntity toEntity (OrderDish orderDish);
+
     List<OrderDishEntity> toEntity(List<OrderDish> orderDish);
-    
+
     List<OrderDish> toModel(List<OrderDishEntity> orderDishEntity);
 
 

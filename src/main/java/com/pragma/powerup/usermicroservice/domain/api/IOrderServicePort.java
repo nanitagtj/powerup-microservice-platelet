@@ -11,5 +11,5 @@ import java.util.List;
 public interface IOrderServicePort {
     void createOrder(Order order, HttpServletRequest request);
     List<Order> getRestaurantOrder(int pageNumber, int pageSize, String statusOrder, Long idEmployee);
-
+    void assignEmployeeToOrder(Long orderId, Long employeeId);
 }

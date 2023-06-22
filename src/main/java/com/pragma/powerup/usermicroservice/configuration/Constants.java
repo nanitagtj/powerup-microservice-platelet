@@ -2,13 +2,13 @@ package com.pragma.powerup.usermicroservice.configuration;
 
 public class Constants {
 
-
-
-
     private Constants() {
         throw new IllegalStateException("Utility class");
     }
     public static final String EMPLOYEERESTAURANT_CREATED_MESSAGE = "Your assigned employee was added successfully";
+    public static final String ORDER_NOT_FOUND_EXCEPTION = "Order not found";
+    public static final String ORDER_UPDATED_MESSAGE = "Order updated";
+    public static final String EMPLOYEE_NOT_ASSIGNED_EXCEPTION = "Employee not assigned to this restaurant";
     public static final String EMPLOYEE_ASSIGNED_EXCEPTION = "The employee is already assigned to other restaurant";
     public static final String IS_OWNER_EXCEPTION = "You're not the owner of this restaurant";
     public static final String SAME_RESTAURANT_EXCEPTION = "The employee is already assigned to this restaurant";

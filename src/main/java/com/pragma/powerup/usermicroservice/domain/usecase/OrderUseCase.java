@@ -2,7 +2,9 @@ package com.pragma.powerup.usermicroservice.domain.usecase;
 
 import com.pragma.powerup.usermicroservice.configuration.security.jwt.JwtProvider;
 import com.pragma.powerup.usermicroservice.domain.api.IOrderServicePort;
+import com.pragma.powerup.usermicroservice.domain.exceptions.EmployeeNotAssignedException;
 import com.pragma.powerup.usermicroservice.domain.exceptions.OrderInProgressException;
+import com.pragma.powerup.usermicroservice.domain.exceptions.OrderNotFoundException;
 import com.pragma.powerup.usermicroservice.domain.model.Dish;
 import com.pragma.powerup.usermicroservice.domain.model.Order;
 import com.pragma.powerup.usermicroservice.domain.model.OrderDish;
@@ -13,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class OrderUseCase implements IOrderServicePort {
     private final IOrderDishPersistencePort orderDishPersistencePort;
@@ -99,9 +100,29 @@ public class OrderUseCase implements IOrderServicePort {
         return orders;
     }
 
+    @Override
+    public void assignEmployeeToOrder(Long orderId, Long employeeId) {
+        Order order = orderPersistencePort.getOrderById(orderId);
+
+        if (order == null) {
+            throw new OrderNotFoundException();
+        }
+
+        Long restaurantId = order.getIdRestaurant().getId();
+        boolean isEmployeeAssigned = employeeRestaurantPersistencePort.isEmployeeAssignedToRestaurant(employeeId, restaurantId);
+
+        if (isEmployeeAssigned) {
+            order.setAssignedEmployeeId(employeeId);
+            order.setStatus("In process");
+            orderPersistencePort.saveOrder(order);
+        } else {
+            throw new EmployeeNotAssignedException();
+        }
+    }
+
     private void validateRange(int pageNumber, int pageSize) {
         if (pageNumber <= 0 || pageSize <= 0) {
-            throw new IllegalArgumentException("La página y el tamaño de página deben ser mayores que cero.");
+            throw new IllegalArgumentException();
         }
     }
 

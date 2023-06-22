@@ -26,8 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.pragma.powerup.usermicroservice.configuration.Constants.ORDER_CREATED_MESSAGE;
-import static com.pragma.powerup.usermicroservice.configuration.Constants.WRONG_CREDENTIALS_MESSAGE;
+import static com.pragma.powerup.usermicroservice.configuration.Constants.*;
 
 @RestController
 @RequestMapping("/platelet")
@@ -61,6 +60,19 @@ public class OrderController {
     @GetMapping("/orders")
     public ResponseEntity<List<OrderResponseDto>> getOrders(@RequestParam int pageNumber, @RequestParam int pageSize, @RequestParam String statusOrder) {
         return ResponseEntity.ok(orderHandler.getRestaurantOrders(pageNumber, pageSize, statusOrder));
+    }
+
+    @Operation(summary = "Assign an employee to an order",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "employee assigned"),
+                    @ApiResponse(responseCode = "404", description = "order not found"),
+                    @ApiResponse(responseCode = "403", description = "employee not allowed to assign to the order")
+            })
+    @PutMapping("/order/{orderId}/assign")
+    public ResponseEntity<Map<String, String>> assignEmployeeToOrder(@PathVariable Long orderId, HttpServletRequest request) {
+        orderHandler.assignEmployeeToOrder(orderId, request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY, ORDER_UPDATED_MESSAGE));
     }
 
 }

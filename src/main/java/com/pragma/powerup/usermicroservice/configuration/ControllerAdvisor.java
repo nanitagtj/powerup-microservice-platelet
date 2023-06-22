@@ -99,4 +99,16 @@ public class ControllerAdvisor {
                 .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, SAME_RESTAURANT_EXCEPTION));
     }
 
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleOrderNotFoundException(OrderNotFoundException orderNotFoundException) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, ORDER_NOT_FOUND_EXCEPTION));
+    }
+    @ExceptionHandler(EmployeeNotAssignedException.class)
+    public ResponseEntity<Map<String, String>> handleEmployeeNotAssignedException(EmployeeNotAssignedException employeeNotAssignedException) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, EMPLOYEE_NOT_ASSIGNED_EXCEPTION));
+    }
+
+
 }

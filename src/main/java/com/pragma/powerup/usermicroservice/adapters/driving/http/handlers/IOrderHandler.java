@@ -12,4 +12,6 @@ import java.util.List;
 public interface IOrderHandler {
     void createOrder(OrderRequestDto orderRequestDto, HttpServletRequest request);
     List<OrderResponseDto> getRestaurantOrders(int pageNumber, int pageSize, String statusOrder);
+
+    void assignEmployeeToOrder(Long orderId, HttpServletRequest request);
 }

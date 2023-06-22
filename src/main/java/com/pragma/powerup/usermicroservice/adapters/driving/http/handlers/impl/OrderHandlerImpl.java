@@ -7,15 +7,12 @@ import com.pragma.powerup.usermicroservice.adapters.driving.http.mapper.IOrderRe
 import com.pragma.powerup.usermicroservice.adapters.driving.http.mapper.IOrderResponseMapper;
 import com.pragma.powerup.usermicroservice.configuration.security.jwt.JwtProvider;
 import com.pragma.powerup.usermicroservice.domain.api.IOrderServicePort;
-import com.pragma.powerup.usermicroservice.domain.model.Order;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+
 
 import org.springframework.stereotype.Service;
 
-import javax.naming.AuthenticationException;
 import java.util.List;
 
 
@@ -37,5 +34,11 @@ public class OrderHandlerImpl implements IOrderHandler {
     @Override
     public List<OrderResponseDto> getRestaurantOrders(int pageNumber, int pageSize, String statusOrder) {
         return orderResponseMapper.toOrderRes(orderServicePort.getRestaurantOrder(pageNumber, pageSize, statusOrder, jwtProvider.getUserIdFromToken(request.getHeader("Authorization"))));
+    }
+
+    @Override
+    public void assignEmployeeToOrder(Long orderId, HttpServletRequest request) {
+        Long employeeId = jwtProvider.getUserIdFromToken(request.getHeader("Authorization"));
+        orderServicePort.assignEmployeeToOrder(orderId, employeeId);
     }
 }

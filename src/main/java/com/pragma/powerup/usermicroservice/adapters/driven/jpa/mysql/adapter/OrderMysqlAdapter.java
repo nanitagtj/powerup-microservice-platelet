@@ -34,4 +34,13 @@ import java.util.List;
         return orderEntityMapper.toOrder(orderRepository.findByIdRestaurant(pageable, status, restaurantId));
     }
 
+    @Override
+    public Order getOrderById(Long orderId) {
+        OrderEntity orderEntity = orderRepository.findById(orderId).orElse(null);
+        if (orderEntity != null) {
+            return orderEntityMapper.toOrder(orderEntity);
+        }
+        return null;
+    }
+
 }
