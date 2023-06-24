@@ -47,7 +47,7 @@ public class JwtTokenRestaurantFilter extends OncePerRequestFilter {
                     if (!role.equals("ROLE_CLIENT")) {
                         throw new AuthenticationException("Unauthorized");
                     }
-                } else if (isPageOrders(request)) {
+                } else if (isPageOrders(request) || isUpdateStatusOrderToReady(request)) {
                     if (!role.equals("ROLE_EMPLOYEE")) {
                         throw new AuthenticationException("Unauthorized");
                     }
@@ -110,6 +110,11 @@ public class JwtTokenRestaurantFilter extends OncePerRequestFilter {
     private boolean isPageOrders(HttpServletRequest request) {
         return request.getMethod().equalsIgnoreCase("GET")
                 && request.getRequestURI().contains("/platelet/orders");
+    }
+
+    private boolean isUpdateStatusOrderToReady(HttpServletRequest request) {
+        return request.getMethod().equalsIgnoreCase("PUT")
+                && request.getRequestURI().contains("/platelet/status-ready/{id}");
     }
 
     private String getToken(HttpServletRequest request) {

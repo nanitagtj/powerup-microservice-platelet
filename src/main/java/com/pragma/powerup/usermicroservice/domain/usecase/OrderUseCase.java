@@ -1,13 +1,17 @@
 package com.pragma.powerup.usermicroservice.domain.usecase;
 
+import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.UserResponseDto;
 import com.pragma.powerup.usermicroservice.configuration.security.jwt.JwtProvider;
 import com.pragma.powerup.usermicroservice.domain.api.IOrderServicePort;
+import com.pragma.powerup.usermicroservice.domain.clientapi.IMessageClientPort;
+import com.pragma.powerup.usermicroservice.domain.clientapi.IUserClientPort;
 import com.pragma.powerup.usermicroservice.domain.exceptions.EmployeeNotAssignedException;
 import com.pragma.powerup.usermicroservice.domain.exceptions.OrderInProgressException;
 import com.pragma.powerup.usermicroservice.domain.exceptions.OrderNotFoundException;
 import com.pragma.powerup.usermicroservice.domain.model.Dish;
 import com.pragma.powerup.usermicroservice.domain.model.Order;
 import com.pragma.powerup.usermicroservice.domain.model.OrderDish;
+import com.pragma.powerup.usermicroservice.domain.model.Pin;
 import com.pragma.powerup.usermicroservice.domain.spi.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,17 +20,25 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.pragma.powerup.usermicroservice.domain.orderMessage.OrderMessage.*;
+
 public class OrderUseCase implements IOrderServicePort {
     private final IOrderDishPersistencePort orderDishPersistencePort;
     private final IOrderPersistencePort orderPersistencePort;
     private final IEmployeeRestaurantPersistencePort employeeRestaurantPersistencePort;
     private final IDishPersistencePort dishPersistencePort;
+    private final IUserClientPort userClientPort;
+    private final IMessageClientPort messageClientPort;
+    private final IOrderMessagePersistencePort orderMessagePersistencePort;
 
-    public OrderUseCase(IOrderDishPersistencePort orderDishPersistencePort, IOrderPersistencePort orderPersistencePort, IEmployeeRestaurantPersistencePort employeeRestaurantPersistencePort, IDishPersistencePort dishPersistencePort) {
+    public OrderUseCase(IOrderDishPersistencePort orderDishPersistencePort, IOrderPersistencePort orderPersistencePort, IEmployeeRestaurantPersistencePort employeeRestaurantPersistencePort, IDishPersistencePort dishPersistencePort, IUserClientPort userClientPort, IMessageClientPort messageClientPort, IOrderMessagePersistencePort orderMessagePersistencePort) {
         this.orderDishPersistencePort = orderDishPersistencePort;
         this.orderPersistencePort = orderPersistencePort;
         this.employeeRestaurantPersistencePort = employeeRestaurantPersistencePort;
         this.dishPersistencePort = dishPersistencePort;
+        this.userClientPort = userClientPort;
+        this.messageClientPort = messageClientPort;
+        this.orderMessagePersistencePort = orderMessagePersistencePort;
     }
 
     @Autowired
@@ -125,5 +137,24 @@ public class OrderUseCase implements IOrderServicePort {
             throw new IllegalArgumentException();
         }
     }
+
+    @Override
+    public void updateStatusToReady(Long id, HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        Order order = orderPersistencePort.getOrderById(id);
+        validateOrder(order, id);
+        order.setStatus("Ready");
+        Long clientId = order.getClientId();
+        UserResponseDto userResponseDto = userClientPort.getUserById(clientId, header);
+        String phone = userResponseDto.getPhone();
+        exists(phone);
+
+        String pin = codeMessage(order, phone);
+        messageClientPort.sendPinMessage(createJson(order, phone, pin));
+
+        orderMessagePersistencePort.savePin(new Pin(order, pin));
+        orderPersistencePort.saveOrder(order);
+    }
+
 
 }

@@ -1,11 +1,13 @@
 package com.pragma.powerup.usermicroservice.configuration;
 
 import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.adapter.*;
+import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.feignclient.IMessageClient;
 import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.feignclient.IUserFeignClient;
 import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.mappers.*;
 import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.repositories.*;
 import com.pragma.powerup.usermicroservice.configuration.security.jwt.JwtProvider;
 import com.pragma.powerup.usermicroservice.domain.api.*;
+import com.pragma.powerup.usermicroservice.domain.clientapi.IMessageClientPort;
 import com.pragma.powerup.usermicroservice.domain.clientapi.IUserClientPort;
 import com.pragma.powerup.usermicroservice.domain.spi.*;
 import com.pragma.powerup.usermicroservice.domain.usecase.*;
@@ -32,6 +34,9 @@ public class BeanConfiguration {
     private final IEmployeeRestaurantEntityMapper employeeRestaurantEntityMapper;
     private final IOrderDishRepository orderDishRepository;
     private final IOrderDishEntityMapper orderDishEntityMapper;
+    private final IMessageClient messageClient;
+    private final IOrderMessageRepository orderMessageRepository;
+    private final IOrderMessageEntityMapper orderMessageEntityMapper;
 
     @Bean
     public IOrderDishPersistencePort orderDishPersistencePort() {
@@ -70,12 +75,21 @@ public class BeanConfiguration {
         return new UserClientAdapter(userFeignClient);
     }
     @Bean
+    public IMessageClientPort messageClientPort() {
+        return new MessageTwilioMysqlAdapter(messageClient);
+    }
+    @Bean
     public IOrderPersistencePort orderPersistencePort() {
         return new OrderMysqlAdapter(orderRepository, orderEntityMapper);
     }
+
+    @Bean
+    public IOrderMessagePersistencePort orderMessagePersistencePort() {
+        return new OrderMessagePinMysqlAdapter(orderMessageRepository, orderMessageEntityMapper);
+    }
     @Bean
     public IOrderServicePort orderServicePort() {
-        return new OrderUseCase(orderDishPersistencePort(), orderPersistencePort(),employeeRestaurantPersistencePort(), dishPersistencePort());
+        return new OrderUseCase(orderDishPersistencePort(), orderPersistencePort(),employeeRestaurantPersistencePort(), dishPersistencePort(), userClientPort(), messageClientPort(), orderMessagePersistencePort());
     }
 
     @Bean

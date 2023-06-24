@@ -21,7 +21,6 @@ public interface IOrderEntityMapper {
     @Mapping(target = "idRestaurant.id", source = "idRestaurant.id")
     List<OrderEntity> toEntity(List<Order> order);
 
-
     @Mapping(target = "status", source = "status")
     @Mapping(target = "idRestaurant.id", source = "idRestaurant.id")
     Order toOrder(OrderEntity order);

@@ -41,4 +41,9 @@ public class OrderHandlerImpl implements IOrderHandler {
         Long employeeId = jwtProvider.getUserIdFromToken(request.getHeader("Authorization"));
         orderServicePort.assignEmployeeToOrder(orderId, employeeId);
     }
+
+    @Override
+    public void updateStatusToReady(Long id, HttpServletRequest request) {
+        orderServicePort.updateStatusToReady(id, request);
+    }
 }
