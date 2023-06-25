@@ -162,6 +162,11 @@ public class OrderUseCase implements IOrderServicePort {
         String header = request.getHeader("Authorization");
         Order order = orderPersistencePort.getOrderById(id);
         validateOrder(order, id);
+
+        if (!order.getStatus().equalsIgnoreCase("In process")) {
+            throw new InvalidOrderStatusException();
+        }
+
         order.setStatus("Ready");
         Long clientId = order.getClientId();
         UserResponseDto userResponseDto = userClientPort.getUserById(clientId, header);
