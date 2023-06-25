@@ -31,4 +31,5 @@ public interface IOrderEntityMapper {
     List<Order> toOrder(Page<OrderEntity> order);
 
     List<Order> toDomainList(List<OrderEntity> orderEntities);
+
 }

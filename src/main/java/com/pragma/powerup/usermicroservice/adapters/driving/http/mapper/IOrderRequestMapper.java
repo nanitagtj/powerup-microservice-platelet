@@ -12,7 +12,7 @@ import org.mapstruct.*;
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
         unmappedSourcePolicy = ReportingPolicy.IGNORE)
 public interface IOrderRequestMapper {
-    @Mapping(target = "idRestaurant.id", source = "restaurantId")
+    @Mapping(target = "idRestaurant.id", source = "idRestaurant")
     @IterableMapping(elementTargetType = OrderDish.class)
     Order toOrder(OrderRequestDto orderReqDto);
 

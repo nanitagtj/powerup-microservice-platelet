@@ -37,8 +37,8 @@ public class OrderHandlerImpl implements IOrderHandler {
     }
 
     @Override
-    public void assignEmployeeToOrder(Long orderId, HttpServletRequest request) {
+    public void assignEmployeeToOrder(List<Long> orderIds, HttpServletRequest request) {
         Long employeeId = jwtProvider.getUserIdFromToken(request.getHeader("Authorization"));
-        orderServicePort.assignEmployeeToOrder(orderId, employeeId);
+        orderServicePort.assignEmployeeToOrders(orderIds, employeeId);
     }
 }

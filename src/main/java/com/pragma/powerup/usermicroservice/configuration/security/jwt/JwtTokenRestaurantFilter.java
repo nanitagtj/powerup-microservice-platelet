@@ -111,6 +111,12 @@ public class JwtTokenRestaurantFilter extends OncePerRequestFilter {
         return request.getMethod().equalsIgnoreCase("GET")
                 && request.getRequestURI().contains("/platelet/orders");
     }
+    private boolean isAssignEmployeeToOrders(HttpServletRequest request) {
+        return request.getMethod().equalsIgnoreCase("PUT")
+                && request.getRequestURI().contains("/platelet/order/assign");
+    }
+
+
 
     private String getToken(HttpServletRequest request) {
         String header = request.getHeader("Authorization");

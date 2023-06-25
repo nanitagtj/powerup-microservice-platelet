@@ -14,7 +14,7 @@ import java.util.List;
 public class OrderResponseDto {
     private Long id;
     private String status;
-    private String restaurant;
+    private Long idRestaurant;
     private List<OrderDishRespDto> orderDishes;
     private LocalDateTime dateTime;
     private double amount;

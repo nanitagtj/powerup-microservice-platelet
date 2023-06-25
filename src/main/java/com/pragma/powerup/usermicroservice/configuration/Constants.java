@@ -9,6 +9,7 @@ public class Constants {
     public static final String ORDER_NOT_FOUND_EXCEPTION = "Order not found";
     public static final String ORDER_UPDATED_MESSAGE = "Order updated";
     public static final String EMPLOYEE_NOT_ASSIGNED_EXCEPTION = "Employee not assigned to this restaurant";
+    public static final String INVALID_ORDER_STATUS_EXCEPTION = "This order can not change status to: in process. The status order must be: Awaiting. ";
     public static final String EMPLOYEE_ASSIGNED_EXCEPTION = "The employee is already assigned to other restaurant";
     public static final String IS_OWNER_EXCEPTION = "You're not the owner of this restaurant";
     public static final String SAME_RESTAURANT_EXCEPTION = "The employee is already assigned to this restaurant";
