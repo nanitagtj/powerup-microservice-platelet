@@ -68,9 +68,9 @@ public class OrderController {
                     @ApiResponse(responseCode = "404", description = "order not found"),
                     @ApiResponse(responseCode = "403", description = "employee not allowed to assign to the order")
             })
-    @PutMapping("/order/{orderId}/assign")
-    public ResponseEntity<Map<String, String>> assignEmployeeToOrder(@PathVariable Long orderId, HttpServletRequest request) {
-        orderHandler.assignEmployeeToOrder(orderId, request);
+    @PutMapping("/order/assign")
+    public ResponseEntity<Map<String, String>> assignEmployeeToOrder(@RequestParam List<Long> orderIds, HttpServletRequest request) {
+        orderHandler.assignEmployeeToOrder(orderIds, request);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY, ORDER_UPDATED_MESSAGE));
     }

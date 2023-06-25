@@ -18,7 +18,7 @@ import java.util.List;
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
         unmappedSourcePolicy = ReportingPolicy.IGNORE)
 public interface IOrderResponseMapper {
-    @Mapping(target = "idRestaurant.id", source = "idRestaurant")
+    @Mapping(target = "idRestaurant", source = "idRestaurant.id")
     @IterableMapping(elementTargetType = OrderDish.class)
     List<OrderResponseDto> toOrderRes(List<Order> order);
 

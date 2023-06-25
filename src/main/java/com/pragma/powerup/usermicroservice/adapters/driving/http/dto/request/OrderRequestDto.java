@@ -13,7 +13,7 @@ import java.util.Map;
 public class OrderRequestDto {
 
     @Column(nullable = false)
-    private Long restaurantId;
+    private Long idRestaurant;
     private List<OrderDishReqDto> orderDishes;
 
 }

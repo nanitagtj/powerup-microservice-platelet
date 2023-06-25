@@ -3,11 +3,15 @@ package com.pragma.powerup.usermicroservice.domain.usecase;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.UserResponseDto;
 import com.pragma.powerup.usermicroservice.configuration.security.jwt.JwtProvider;
 import com.pragma.powerup.usermicroservice.domain.api.IOrderServicePort;
+
 import com.pragma.powerup.usermicroservice.domain.clientapi.IMessageClientPort;
 import com.pragma.powerup.usermicroservice.domain.clientapi.IUserClientPort;
 import com.pragma.powerup.usermicroservice.domain.exceptions.EmployeeNotAssignedException;
 import com.pragma.powerup.usermicroservice.domain.exceptions.OrderInProgressException;
 import com.pragma.powerup.usermicroservice.domain.exceptions.OrderNotFoundException;
+
+import com.pragma.powerup.usermicroservice.domain.exceptions.*;
+
 import com.pragma.powerup.usermicroservice.domain.model.Dish;
 import com.pragma.powerup.usermicroservice.domain.model.Order;
 import com.pragma.powerup.usermicroservice.domain.model.OrderDish;
@@ -113,24 +117,39 @@ public class OrderUseCase implements IOrderServicePort {
     }
 
     @Override
-    public void assignEmployeeToOrder(Long orderId, Long employeeId) {
-        Order order = orderPersistencePort.getOrderById(orderId);
+    public void assignEmployeeToOrders(List<Long> orderIds, Long employeeId) {
+        List<Order> orders = new ArrayList<>();
 
-        if (order == null) {
-            throw new OrderNotFoundException();
+        for (Long orderId : orderIds) {
+            Order order = orderPersistencePort.getOrderById(orderId);
+
+            if (order == null) {
+                throw new OrderNotFoundException();
+            }
+
+            Long restaurantId = order.getIdRestaurant().getId();
+            boolean isEmployeeAssigned = employeeRestaurantPersistencePort.isEmployeeAssignedToRestaurant(employeeId, restaurantId);
+
+            if (isEmployeeAssigned) {
+                if (order.getAssignedEmployeeId() != null) {
+                    throw new EmployeeAssignedToTheSameRestaurantException();
+                }
+
+                if (order.getStatus().equalsIgnoreCase("awaiting")) {
+                    order.setAssignedEmployeeId(employeeId);
+                    order.setStatus("In process");
+                    orders.add(order);
+                } else {
+                    throw new InvalidOrderStatusException();
+                }
+            } else {
+                throw new EmployeeNotAssignedException();
+            }
         }
 
-        Long restaurantId = order.getIdRestaurant().getId();
-        boolean isEmployeeAssigned = employeeRestaurantPersistencePort.isEmployeeAssignedToRestaurant(employeeId, restaurantId);
-
-        if (isEmployeeAssigned) {
-            order.setAssignedEmployeeId(employeeId);
-            order.setStatus("In process");
-            orderPersistencePort.saveOrder(order);
-        } else {
-            throw new EmployeeNotAssignedException();
-        }
+        orderPersistencePort.saveOrderAll(orders);
     }
+
 
     private void validateRange(int pageNumber, int pageSize) {
         if (pageNumber <= 0 || pageSize <= 0) {

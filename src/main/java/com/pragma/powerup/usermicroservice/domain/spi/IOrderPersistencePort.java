@@ -9,5 +9,5 @@ public interface IOrderPersistencePort {
     List<Order> getOrdersByClientId(Long clientId);
     List<Order> getRestaurantOrder(int pageNumber, int pageSize, String status, Long restaurantId);
     Order getOrderById(Long orderId);
-
+    void saveOrderAll(List<Order> orders);
 }
