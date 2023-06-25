@@ -32,4 +32,8 @@ public class RestaurantEntity {
     private String urlLogo;
     @Column(nullable = false)
     private Long idOwner;
+
+    public RestaurantEntity(Long id) {
+        this.id = id;
+    }
 }

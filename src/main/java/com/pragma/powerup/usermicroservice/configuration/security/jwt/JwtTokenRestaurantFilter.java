@@ -43,11 +43,11 @@ public class JwtTokenRestaurantFilter extends OncePerRequestFilter {
                     if (!role.equals("ROLE_OWNER")) {
                         throw new AuthenticationException("Unauthorized");
                     }
-                } else if (isCreateOrder(request)) {
+                } else if (isCreateOrder(request) || isClientCancelOrders(request)) {
                     if (!role.equals("ROLE_CLIENT")) {
                         throw new AuthenticationException("Unauthorized");
                     }
-                } else if (isPageOrders(request) || isUpdateStatusOrderToReady(request) || isUpdateStatusToDelivered(request)) {
+                } else if (isPageOrders(request) || isUpdateStatusOrderToReady(request) || isUpdateStatusToDelivered(request) || isAssignEmployeeToOrders(request)) {
                     if (!role.equals("ROLE_EMPLOYEE")) {
                         throw new AuthenticationException("Unauthorized");
                     }
@@ -115,8 +115,10 @@ public class JwtTokenRestaurantFilter extends OncePerRequestFilter {
         return request.getMethod().equalsIgnoreCase("PUT")
                 && request.getRequestURI().contains("/platelet/order/assign");
     }
-
-
+    private boolean isClientCancelOrders(HttpServletRequest request) {
+        return request.getMethod().equalsIgnoreCase("DELETE")
+                && request.getRequestURI().contains("/platelet/cancel/order/{orderId}");
+    }
 
     private boolean isUpdateStatusOrderToReady(HttpServletRequest request) {
         return request.getMethod().equalsIgnoreCase("PUT")

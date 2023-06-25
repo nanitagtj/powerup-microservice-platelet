@@ -1,6 +1,5 @@
 package com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

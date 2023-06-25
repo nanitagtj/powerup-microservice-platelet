@@ -15,5 +15,7 @@ public interface IOrderServicePort {
 
     void updateStatusToDelivered(Long orderId, String pin);
 
+    void cancelOrder(Long orderId, Long clientId);
+
 }
 

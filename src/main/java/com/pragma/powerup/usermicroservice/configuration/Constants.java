@@ -10,9 +10,12 @@ public class Constants {
     public static final String ORDER_NOT_FOUND_EXCEPTION = "Order not found";
     public static final String ORDER_UPDATE_MESSAGE = "Order update to status Ready";
     public static final String INVALID_PIN_EXCEPTION = "Invalid Pin";
+    public static final String UNAUTHORIZED_CLIENT_EXCEPTION = "You can not cancel this order. Try with your own order.";
+    public static final String STATUS_AWAITING_EXCEPTION = "Your order is already in process. You can not cancel your order. Sorry.";
     public static final String STATUS_READY_EXCEPTION = "Status order must be: ready";
     public static final String ORDER_STATUS_DELIVERED_MESSAGE = "The order was delivered";
     public static final String ORDER_UPDATED_MESSAGE = "Order updated";
+    public static final String CANCELED_ORDER_MESSAGE = "Your order was cancelled.";
     public static final String EMPLOYEE_NOT_ASSIGNED_EXCEPTION = "Employee not assigned to this restaurant";
     public static final String INVALID_ORDER_STATUS_EXCEPTION = "This order can not change status to: in process. The status order must be: Awaiting. ";
     public static final String EMPLOYEE_ASSIGNED_EXCEPTION = "The employee is already assigned to other restaurant";

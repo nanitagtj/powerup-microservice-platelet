@@ -201,4 +201,24 @@ public class OrderUseCase implements IOrderServicePort {
         orderPersistencePort.saveOrder(order);
     }
 
+    @Override
+    public void cancelOrder(Long orderId, Long clientId) {
+        Order order = orderPersistencePort.getOrderById(orderId);
+
+        if (order == null) {
+            throw new OrderNotFoundException();
+        }
+
+        if (!order.getClientId().equals(clientId)) {
+            throw new UnauthorizedOrderCancellationException();
+        }
+
+        if (!order.getStatus().equalsIgnoreCase("Awaiting")) {
+            throw new InvalidOrderStatusException();
+        }
+
+        order.setStatus("Cancelled");
+        orderPersistencePort.saveOrder(order);
+}
+
 }

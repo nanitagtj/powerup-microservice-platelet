@@ -5,6 +5,7 @@ import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request.Ord
 import com.pragma.powerup.usermicroservice.domain.model.Dish;
 import com.pragma.powerup.usermicroservice.domain.model.Order;
 import com.pragma.powerup.usermicroservice.domain.model.OrderDish;
+import com.pragma.powerup.usermicroservice.domain.model.Restaurant;
 import org.mapstruct.*;
 
 
@@ -12,6 +13,7 @@ import org.mapstruct.*;
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
         unmappedSourcePolicy = ReportingPolicy.IGNORE)
 public interface IOrderRequestMapper {
+
     @Mapping(target = "idRestaurant.id", source = "idRestaurant")
     @IterableMapping(elementTargetType = OrderDish.class)
     Order toOrder(OrderRequestDto orderReqDto);
@@ -24,5 +26,4 @@ public interface IOrderRequestMapper {
         dish.setId(value);
         return dish;
     }
-
 }

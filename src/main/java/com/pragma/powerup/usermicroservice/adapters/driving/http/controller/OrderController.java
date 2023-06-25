@@ -111,4 +111,17 @@ public class OrderController {
                 .body(Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY, ORDER_STATUS_DELIVERED_MESSAGE));
     }
 
+    @Operation(summary = "Cancel an order",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "order canceled"),
+                    @ApiResponse(responseCode = "403", description = "unable to cancel the order"),
+                    @ApiResponse(responseCode = "404", description = "order not found")
+            })
+    @DeleteMapping("/cancel/order/{orderId}")
+    public ResponseEntity<Map<String,String>> cancelOrder(@PathVariable Long orderId, HttpServletRequest request) {
+        orderHandler.cancelOrder(orderId, request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY, CANCELED_ORDER_MESSAGE));
+    }
+
 }

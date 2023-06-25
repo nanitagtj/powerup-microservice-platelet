@@ -133,5 +133,15 @@ public class ControllerAdvisor {
                 .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, STATUS_READY_EXCEPTION));
     }
 
+    @ExceptionHandler(AwaitingOrderStatusException.class)
+    public ResponseEntity<Map<String, String>> handleAwaitingOrderStatusException(AwaitingOrderStatusException awaitingOrderStatusException) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, STATUS_AWAITING_EXCEPTION));
+    }
+    @ExceptionHandler(UnauthorizedOrderCancellationException.class)
+    public ResponseEntity<Map<String, String>> handleUnauthorizedOrderCancellationException(UnauthorizedOrderCancellationException unauthorizedOrderCancellationException) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, UNAUTHORIZED_CLIENT_EXCEPTION));
+    }
 
 }
