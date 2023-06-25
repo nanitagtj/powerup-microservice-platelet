@@ -7,6 +7,10 @@ import com.pragma.powerup.usermicroservice.domain.api.IOrderServicePort;
 import com.pragma.powerup.usermicroservice.domain.clientapi.IMessageClientPort;
 import com.pragma.powerup.usermicroservice.domain.clientapi.IUserClientPort;
 
+import com.pragma.powerup.usermicroservice.domain.exceptions.EmployeeNotAssignedException;
+import com.pragma.powerup.usermicroservice.domain.exceptions.OrderInProgressException;
+import com.pragma.powerup.usermicroservice.domain.exceptions.OrderNotFoundException;
+
 import com.pragma.powerup.usermicroservice.domain.exceptions.*;
 import com.pragma.powerup.usermicroservice.domain.model.Dish;
 import com.pragma.powerup.usermicroservice.domain.model.Order;

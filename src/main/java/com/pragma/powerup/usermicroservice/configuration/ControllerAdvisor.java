@@ -115,6 +115,13 @@ public class ControllerAdvisor {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, EMPLOYEE_NOT_ASSIGNED_EXCEPTION));
     }
+
+    @ExceptionHandler(InvalidOrderStatusException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidOrderStatusException(InvalidOrderStatusException invalidOrderStatusException) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, INVALID_ORDER_STATUS_EXCEPTION));
+    }
+
     @ExceptionHandler(InvalidPinException.class)
     public ResponseEntity<Map<String, String>> handleInvalidPinException(InvalidPinException invalidPinException) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -124,13 +131,6 @@ public class ControllerAdvisor {
     public ResponseEntity<Map<String, String>> handleOrderMustBeInReadyStatus(OrderMustBeInReadyStatus orderMustBeInReadyStatus) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, STATUS_READY_EXCEPTION));
-    }
-
-
-    @ExceptionHandler(InvalidOrderStatusException.class)
-    public ResponseEntity<Map<String, String>> handleInvalidOrderStatusException(InvalidOrderStatusException invalidOrderStatusException) {
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, INVALID_ORDER_STATUS_EXCEPTION));
     }
 
 
