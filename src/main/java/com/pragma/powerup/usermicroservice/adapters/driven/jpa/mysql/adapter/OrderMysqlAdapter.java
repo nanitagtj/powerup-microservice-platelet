@@ -42,4 +42,10 @@ import java.util.List;
         return null;
     }
 
+    @Override
+    public void saveOrderAll(List<Order> orders) {
+        List<OrderEntity> orderEntities = orderEntityMapper.toEntity(orders);
+        orderRepository.saveAll(orderEntities);
+    }
+
 }
