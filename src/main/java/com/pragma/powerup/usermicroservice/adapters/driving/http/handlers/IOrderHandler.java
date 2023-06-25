@@ -11,4 +11,5 @@ public interface IOrderHandler {
 
     void assignEmployeeToOrder(Long orderId, HttpServletRequest request);
     void updateStatusToReady(Long id, HttpServletRequest request);
+    void updateStatusToDelivered(Long orderId, String pin);
 }

@@ -5,4 +5,6 @@ import com.pragma.powerup.usermicroservice.domain.model.Pin;
 public interface IOrderMessagePersistencePort {
 
     void savePin(Pin pin);
+
+    Pin getPinByOrderId(Long id);
 }

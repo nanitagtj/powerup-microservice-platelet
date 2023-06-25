@@ -46,4 +46,9 @@ public class OrderHandlerImpl implements IOrderHandler {
     public void updateStatusToReady(Long id, HttpServletRequest request) {
         orderServicePort.updateStatusToReady(id, request);
     }
+
+    @Override
+    public void updateStatusToDelivered(Long orderId,String pin) {
+        orderServicePort.updateStatusToDelivered(orderId, pin);
+    }
 }

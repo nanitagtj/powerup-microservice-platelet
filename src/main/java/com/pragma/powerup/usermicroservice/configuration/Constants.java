@@ -9,7 +9,9 @@ public class Constants {
     public static final String EMPLOYEERESTAURANT_CREATED_MESSAGE = "Your assigned employee was added successfully";
     public static final String ORDER_NOT_FOUND_EXCEPTION = "Order not found";
     public static final String ORDER_UPDATE_MESSAGE = "Order update to status Ready";
-
+    public static final String INVALID_PIN_EXCEPTION = "Invalid Pin";
+    public static final String STATUS_READY_EXCEPTION = "Status order must be: ready";
+    public static final String ORDER_STATUS_DELIVERED_MESSAGE = "The order was delivered";
     public static final String ORDER_UPDATED_MESSAGE = "Order updated";
     public static final String EMPLOYEE_NOT_ASSIGNED_EXCEPTION = "Employee not assigned to this restaurant";
     public static final String EMPLOYEE_ASSIGNED_EXCEPTION = "The employee is already assigned to other restaurant";

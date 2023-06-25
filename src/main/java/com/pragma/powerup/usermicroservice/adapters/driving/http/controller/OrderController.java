@@ -92,4 +92,23 @@ public class OrderController {
                 .body(Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY, ORDER_UPDATE_MESSAGE));
     }
 
+    @Operation(summary = "Update order status to delivered",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "order status updated to delivered",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Message"))),
+                    @ApiResponse(responseCode = "404", description = ORDER_NOT_FOUND_EXCEPTION,
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error"))),
+                    @ApiResponse(responseCode = "403", description = INVALID_PIN_EXCEPTION,
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error"))),
+                    @ApiResponse(responseCode = "401", description = WRONG_CREDENTIALS_MESSAGE,
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error")))
+
+            })
+    @PutMapping("order/{orderId}/status-delivered")
+    public ResponseEntity<Map<String, String>> updateOrderStatusToDelivered(@PathVariable Long orderId, @RequestParam String pin) {
+        orderHandler.updateStatusToDelivered(orderId, pin);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY, ORDER_STATUS_DELIVERED_MESSAGE));
+    }
+
 }

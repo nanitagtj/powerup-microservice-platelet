@@ -15,6 +15,8 @@ public class Pin {
     }
 
     public Pin(Order order, String pin) {
+        this.orderId = order;
+        this.pin = pin;
     }
 
     public Long getId() {

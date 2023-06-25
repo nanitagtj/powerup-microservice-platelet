@@ -5,9 +5,7 @@ import com.pragma.powerup.usermicroservice.configuration.security.jwt.JwtProvide
 import com.pragma.powerup.usermicroservice.domain.api.IOrderServicePort;
 import com.pragma.powerup.usermicroservice.domain.clientapi.IMessageClientPort;
 import com.pragma.powerup.usermicroservice.domain.clientapi.IUserClientPort;
-import com.pragma.powerup.usermicroservice.domain.exceptions.EmployeeNotAssignedException;
-import com.pragma.powerup.usermicroservice.domain.exceptions.OrderInProgressException;
-import com.pragma.powerup.usermicroservice.domain.exceptions.OrderNotFoundException;
+import com.pragma.powerup.usermicroservice.domain.exceptions.*;
 import com.pragma.powerup.usermicroservice.domain.model.Dish;
 import com.pragma.powerup.usermicroservice.domain.model.Order;
 import com.pragma.powerup.usermicroservice.domain.model.OrderDish;
@@ -82,7 +80,7 @@ public class OrderUseCase implements IOrderServicePort {
         List<Order> clientOrders = orderPersistencePort.getOrdersByClientId(clientId);
 
         for (Order order : clientOrders) {
-            if (order.getStatus().equalsIgnoreCase("In process") || order.getStatus().equalsIgnoreCase("Awaiting") || order.getStatus().equalsIgnoreCase("Ready")) {
+            if (order.getStatus().equalsIgnoreCase("In process") || order.getStatus().equalsIgnoreCase("Awaiting")) {
                 return true;
             }
         }
@@ -155,6 +153,26 @@ public class OrderUseCase implements IOrderServicePort {
         orderMessagePersistencePort.savePin(new Pin(order, pin));
         orderPersistencePort.saveOrder(order);
     }
+    @Override
+    public void updateStatusToDelivered(Long orderId, String securityPin) {
+        Order order = orderPersistencePort.getOrderById(orderId);
 
+        if (order == null) {
+            throw new OrderNotFoundException();
+        }
+
+        if (!order.getStatus().equalsIgnoreCase("Ready")) {
+            throw new OrderMustBeInReadyStatus();
+        }
+
+        Pin pin = orderMessagePersistencePort.getPinByOrderId(orderId);
+
+        if (pin == null || !pin.getPin().equals(securityPin)) {
+            throw new InvalidPinException();
+        }
+
+        order.setStatus("Delivered");
+        orderPersistencePort.saveOrder(order);
+    }
 
 }

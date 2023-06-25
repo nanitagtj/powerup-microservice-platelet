@@ -35,11 +35,11 @@ public class OrderMessage {
     }
 
     public static String codeMessage(Order order, String phone) {
-        int hash = 6;
+        int hash = 7;
         hash = 79 * hash + Objects.hashCode(order.getId());
         hash = 79 * hash + Objects.hashCode(order.getIdRestaurant().getPhone());
         hash = 79 * hash + Objects.hashCode(phone);
-        return String.valueOf(hash);
+        return String.valueOf(Math.abs(hash));
     }
 
 }

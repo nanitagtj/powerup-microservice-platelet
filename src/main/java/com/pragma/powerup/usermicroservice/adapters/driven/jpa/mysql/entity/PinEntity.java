@@ -17,6 +17,7 @@ public class PinEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @OneToOne
+    @JoinColumn(name = "order_id_id")
     private OrderEntity orderId;
     private String pin;
 }

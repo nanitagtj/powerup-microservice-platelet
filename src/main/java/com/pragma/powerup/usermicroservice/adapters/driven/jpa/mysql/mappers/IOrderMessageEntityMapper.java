@@ -12,4 +12,6 @@ import org.mapstruct.ReportingPolicy;
 public interface IOrderMessageEntityMapper {
     @Mapping(target = "orderId.id", source = "orderId.id")
     PinEntity toEntity(Pin pin);
+    @Mapping(target = "orderId.id", source = "orderId.id")
+    Pin toDomain(PinEntity pinEntity);
 }

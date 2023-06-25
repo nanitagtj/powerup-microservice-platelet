@@ -14,4 +14,5 @@ public interface IOrderServicePort {
     void assignEmployeeToOrder(Long orderId, Long employeeId);
 
     void updateStatusToReady(Long id, HttpServletRequest request);
+    void updateStatusToDelivered(Long orderId, String pin);
 }
