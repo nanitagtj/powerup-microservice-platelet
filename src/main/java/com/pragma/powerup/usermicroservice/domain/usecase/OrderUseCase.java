@@ -265,5 +265,21 @@ public class OrderUseCase implements IOrderServicePort {
 
         return orderLogClientPort.getOrderLogsByOrderId(orderId);
     }
+    @Override
+    public String calculateElapsedTime(Long orderId, Long ownerId) {
+        Order order = orderPersistencePort.getOrderById(orderId);
+
+        if (order == null) {
+            throw new OrderNotFoundException();
+        }
+
+        Long restaurantOwnerId = order.getIdRestaurant().getIdOwner();
+
+        if (!restaurantOwnerId.equals(ownerId)) {
+            throw new UnauthorizedOrderAccessException();
+        }
+        return orderLogClientPort.calculateElapsedTimeByOrderId(orderId);
+    }
+
 
 }

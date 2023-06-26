@@ -2,7 +2,6 @@ package com.pragma.powerup.usermicroservice.adapters.driving.http.handlers;
 
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request.OrderRequestDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderResponseDto;
-import com.pragma.powerup.usermicroservice.domain.model.Order;
 import com.pragma.powerup.usermicroservice.domain.model.OrderLogJson;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -20,4 +19,6 @@ public interface IOrderHandler {
 
     void cancelOrder(Long orderId, HttpServletRequest request);
     List<OrderLogJson> getOrderLogsByOrderId(Long orderId, HttpServletRequest request);
+
+    String calculateElapsedTime(Long orderId, HttpServletRequest request);
 }

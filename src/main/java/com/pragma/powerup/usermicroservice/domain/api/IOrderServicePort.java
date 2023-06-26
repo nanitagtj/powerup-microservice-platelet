@@ -21,5 +21,7 @@ public interface IOrderServicePort {
     void saveOrderLog(OrderLogJson orderLogJson);
 
     List<OrderLogJson> getOrderLogsByOrderId(Long orderId, Long clientId);
+
+    String calculateElapsedTime(Long orderId, Long ownerId);
 }
 

@@ -20,4 +20,9 @@ public class OrderLogClientAdapter implements IOrderLogClientPort {
     public List<OrderLogJson> getOrderLogsByOrderId(Long orderId) {
         return orderLogClient.getOrderLogsByOrderId(orderId);
     }
+
+    @Override
+    public String calculateElapsedTimeByOrderId(Long orderId) {
+        return orderLogClient.calculateElapsedTimeByOrderId(orderId);
+    }
 }

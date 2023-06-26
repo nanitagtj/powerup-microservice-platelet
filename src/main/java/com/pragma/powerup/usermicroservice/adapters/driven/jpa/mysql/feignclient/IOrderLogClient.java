@@ -15,4 +15,6 @@ public interface IOrderLogClient {
     void saveOrderLog(@RequestBody String orderLogJson);
     @GetMapping("/orderLogs/{orderId}")
     List<OrderLogJson> getOrderLogsByOrderId(@PathVariable("orderId") Long orderId);
+    @GetMapping("/orderElapsedTime/{orderId}")
+    String calculateElapsedTimeByOrderId(@PathVariable("orderId") Long orderId);
 }

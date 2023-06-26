@@ -2,6 +2,7 @@ package com.pragma.powerup.usermicroservice.adapters.driving.http.controller;
 
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request.OrderRequestDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request.RestaurantRequestDto;
+import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.ElapsedTimeResponseDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderResponseDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.handlers.IOrderHandler;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.handlers.IRestaurantHandler;
@@ -137,5 +138,22 @@ public class OrderController {
     public ResponseEntity<List<OrderLogJson>> getOrderLogs(@PathVariable Long orderId, HttpServletRequest request) {
         List<OrderLogJson> logs = orderHandler.getOrderLogsByOrderId(orderId, request);
         return ResponseEntity.ok(logs);
+    }
+
+    @Operation(summary = "Calculate elapsed time for an order",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Elapsed time calculated",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/ElapsedTimeResponseDto"))),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error"))),
+                    @ApiResponse(responseCode = "404", description = "Order not found",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error")))
+            })
+    @GetMapping("/order/{orderId}/elapsed-time")
+    public ResponseEntity<Map<String, ElapsedTimeResponseDto>> calculateElapsedTime(@PathVariable Long orderId, HttpServletRequest request) {
+        String elapsedTime = orderHandler.calculateElapsedTime(orderId, request);
+        ElapsedTimeResponseDto responseDto = new ElapsedTimeResponseDto(elapsedTime);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Collections.singletonMap(Constants.EFFICIENCY_MESSAGE, responseDto));
     }
 }

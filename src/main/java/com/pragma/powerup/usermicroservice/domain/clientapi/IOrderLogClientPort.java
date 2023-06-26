@@ -9,4 +9,5 @@ public interface IOrderLogClientPort {
     void saveOrderLog(String orderLogJson);
 
     List<OrderLogJson> getOrderLogsByOrderId(Long orderId);
+    String calculateElapsedTimeByOrderId(Long orderId);
 }

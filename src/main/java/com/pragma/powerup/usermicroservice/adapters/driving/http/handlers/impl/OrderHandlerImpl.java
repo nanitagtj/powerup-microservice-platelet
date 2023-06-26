@@ -14,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 
@@ -63,5 +66,20 @@ public class OrderHandlerImpl implements IOrderHandler {
     public List<OrderLogJson> getOrderLogsByOrderId(Long orderId, HttpServletRequest request) {
         Long clientId = jwtProvider.getUserIdFromToken(request.getHeader("Authorization"));
         return orderServicePort.getOrderLogsByOrderId(orderId, clientId);
+    }
+
+    @Override
+    public String calculateElapsedTime(Long orderId, HttpServletRequest request) {
+        Long ownerId = jwtProvider.getUserIdFromToken(request.getHeader("Authorization"));
+        String elapsedTime = orderServicePort.calculateElapsedTime(orderId, ownerId);
+        return formatElapsedTime(elapsedTime);
+    }
+
+    private String formatElapsedTime(String elapsedTime) {
+        Duration duration = Duration.parse(elapsedTime);
+        LocalTime localTime = LocalTime.MIDNIGHT.plus(duration);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        return localTime.format(formatter);
     }
 }
