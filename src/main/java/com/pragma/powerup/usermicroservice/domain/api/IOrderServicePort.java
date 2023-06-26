@@ -1,6 +1,7 @@
 package com.pragma.powerup.usermicroservice.domain.api;
 
 import com.pragma.powerup.usermicroservice.domain.model.Order;
+import com.pragma.powerup.usermicroservice.domain.model.OrderLogJson;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
@@ -17,5 +18,8 @@ public interface IOrderServicePort {
 
     void cancelOrder(Long orderId, Long clientId);
 
+    void saveOrderLog(OrderLogJson orderLogJson);
+
+    List<OrderLogJson> getOrderLogsByOrderId(Long orderId, Long clientId);
 }
 

@@ -6,6 +6,7 @@ import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.Or
 import com.pragma.powerup.usermicroservice.adapters.driving.http.handlers.IOrderHandler;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.handlers.IRestaurantHandler;
 import com.pragma.powerup.usermicroservice.configuration.Constants;
+import com.pragma.powerup.usermicroservice.domain.model.OrderLogJson;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -123,5 +124,18 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY, CANCELED_ORDER_MESSAGE));
     }
-
+    @Operation(summary = "Get logs of an order",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Logs retrieved",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/OrderLogJson"))),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error"))),
+                    @ApiResponse(responseCode = "404", description = "Order not found",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error")))
+            })
+    @GetMapping("/order/{orderId}/logs")
+    public ResponseEntity<List<OrderLogJson>> getOrderLogs(@PathVariable Long orderId, HttpServletRequest request) {
+        List<OrderLogJson> logs = orderHandler.getOrderLogsByOrderId(orderId, request);
+        return ResponseEntity.ok(logs);
+    }
 }

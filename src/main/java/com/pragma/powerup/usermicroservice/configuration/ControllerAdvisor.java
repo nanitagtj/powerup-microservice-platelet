@@ -143,5 +143,11 @@ public class ControllerAdvisor {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, UNAUTHORIZED_CLIENT_EXCEPTION));
     }
+    @ExceptionHandler(UnauthorizedOrderAccessException.class)
+    public ResponseEntity<Map<String, String>> handleUnauthorizedOrderAccessException(UnauthorizedOrderAccessException unauthorizedOrderAccessException) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, UNAUTHORIZED_CLIENT_ACCESS_EXCEPTION));
+    }
+
 
 }

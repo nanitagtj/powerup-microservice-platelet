@@ -8,6 +8,7 @@ public class Constants {
     }
     public static final String EMPLOYEERESTAURANT_CREATED_MESSAGE = "Your assigned employee was added successfully";
     public static final String ORDER_NOT_FOUND_EXCEPTION = "Order not found";
+    public static final String UNAUTHORIZED_CLIENT_ACCESS_EXCEPTION = "You do not have permission to list these logs. Please try with an order associated with your account.";
     public static final String ORDER_UPDATE_MESSAGE = "Order update to status Ready";
     public static final String INVALID_PIN_EXCEPTION = "Invalid Pin";
     public static final String UNAUTHORIZED_CLIENT_EXCEPTION = "You can not cancel this order. Try with your own order.";

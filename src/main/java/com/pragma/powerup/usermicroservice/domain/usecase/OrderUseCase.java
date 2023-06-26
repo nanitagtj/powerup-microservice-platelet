@@ -5,6 +5,7 @@ import com.pragma.powerup.usermicroservice.configuration.security.jwt.JwtProvide
 import com.pragma.powerup.usermicroservice.domain.api.IOrderServicePort;
 
 import com.pragma.powerup.usermicroservice.domain.clientapi.IMessageClientPort;
+import com.pragma.powerup.usermicroservice.domain.clientapi.IOrderLogClientPort;
 import com.pragma.powerup.usermicroservice.domain.clientapi.IUserClientPort;
 
 import com.pragma.powerup.usermicroservice.domain.exceptions.EmployeeNotAssignedException;
@@ -12,10 +13,8 @@ import com.pragma.powerup.usermicroservice.domain.exceptions.OrderInProgressExce
 import com.pragma.powerup.usermicroservice.domain.exceptions.OrderNotFoundException;
 
 import com.pragma.powerup.usermicroservice.domain.exceptions.*;
-import com.pragma.powerup.usermicroservice.domain.model.Dish;
-import com.pragma.powerup.usermicroservice.domain.model.Order;
-import com.pragma.powerup.usermicroservice.domain.model.OrderDish;
-import com.pragma.powerup.usermicroservice.domain.model.Pin;
+import com.pragma.powerup.usermicroservice.domain.model.*;
+import com.pragma.powerup.usermicroservice.domain.orderMessage.OrderLogJsonSerialize;
 import com.pragma.powerup.usermicroservice.domain.spi.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +33,9 @@ public class OrderUseCase implements IOrderServicePort {
     private final IUserClientPort userClientPort;
     private final IMessageClientPort messageClientPort;
     private final IOrderMessagePersistencePort orderMessagePersistencePort;
+    private final IOrderLogClientPort orderLogClientPort;
 
-    public OrderUseCase(IOrderDishPersistencePort orderDishPersistencePort, IOrderPersistencePort orderPersistencePort, IEmployeeRestaurantPersistencePort employeeRestaurantPersistencePort, IDishPersistencePort dishPersistencePort, IUserClientPort userClientPort, IMessageClientPort messageClientPort, IOrderMessagePersistencePort orderMessagePersistencePort) {
+    public OrderUseCase(IOrderDishPersistencePort orderDishPersistencePort, IOrderPersistencePort orderPersistencePort, IEmployeeRestaurantPersistencePort employeeRestaurantPersistencePort, IDishPersistencePort dishPersistencePort, IUserClientPort userClientPort, IMessageClientPort messageClientPort, IOrderMessagePersistencePort orderMessagePersistencePort, IOrderLogClientPort orderLogClientPort) {
         this.orderDishPersistencePort = orderDishPersistencePort;
         this.orderPersistencePort = orderPersistencePort;
         this.employeeRestaurantPersistencePort = employeeRestaurantPersistencePort;
@@ -43,6 +43,7 @@ public class OrderUseCase implements IOrderServicePort {
         this.userClientPort = userClientPort;
         this.messageClientPort = messageClientPort;
         this.orderMessagePersistencePort = orderMessagePersistencePort;
+        this.orderLogClientPort = orderLogClientPort;
     }
 
     @Autowired
@@ -68,6 +69,14 @@ public class OrderUseCase implements IOrderServicePort {
 
         order.getOrderDishes().forEach(orderDish -> orderDish.setOrder(orderEntity));
         orderDishPersistencePort.saveOrderDish(order.getOrderDishes());
+
+        OrderLogJson orderLog = new OrderLogJson();
+        orderLog.setOrderId(orderEntity.getId());
+        orderLog.setPreviousStatus("");
+        orderLog.setNewStatus(orderEntity.getStatus());
+        orderLog.setTimestamp(LocalDateTime.now());
+
+        orderLogClientPort.saveOrderLog(OrderLogJsonSerialize.serializeToJson(orderLog));
     }
 
     private double calculateTotalAmount(List<OrderDish> orderDishes) {
@@ -145,6 +154,13 @@ public class OrderUseCase implements IOrderServicePort {
             } else {
                 throw new EmployeeNotAssignedException();
             }
+            OrderLogJson orderLog = new OrderLogJson();
+            orderLog.setOrderId(order.getId());
+            orderLog.setPreviousStatus("Awaiting");
+            orderLog.setNewStatus(order.getStatus());
+            orderLog.setTimestamp(LocalDateTime.now());
+
+            orderLogClientPort.saveOrderLog(OrderLogJsonSerialize.serializeToJson(orderLog));
         }
 
         orderPersistencePort.saveOrderAll(orders);
@@ -168,6 +184,7 @@ public class OrderUseCase implements IOrderServicePort {
         }
 
         order.setStatus("Ready");
+
         Long clientId = order.getClientId();
         UserResponseDto userResponseDto = userClientPort.getUserById(clientId, header);
         String phone = userResponseDto.getPhone();
@@ -178,6 +195,14 @@ public class OrderUseCase implements IOrderServicePort {
 
         orderMessagePersistencePort.savePin(new Pin(order, pin));
         orderPersistencePort.saveOrder(order);
+
+        OrderLogJson orderLog = new OrderLogJson();
+        orderLog.setOrderId(order.getId());
+        orderLog.setPreviousStatus("In process");
+        orderLog.setNewStatus(order.getStatus());
+        orderLog.setTimestamp(LocalDateTime.now());
+
+        orderLogClientPort.saveOrderLog(OrderLogJsonSerialize.serializeToJson(orderLog));
     }
     @Override
     public void updateStatusToDelivered(Long orderId, String securityPin) {
@@ -220,5 +245,25 @@ public class OrderUseCase implements IOrderServicePort {
         order.setStatus("Cancelled");
         orderPersistencePort.saveOrder(order);
 }
+    @Override
+    public void saveOrderLog(OrderLogJson orderLogJson) {
+        String json = OrderLogJsonSerialize.serializeToJson(orderLogJson);
+        orderLogClientPort.saveOrderLog(json);
+    }
+
+    @Override
+    public List<OrderLogJson> getOrderLogsByOrderId(Long orderId, Long clientId) {
+        Order order = orderPersistencePort.getOrderById(orderId);
+
+        if (order == null) {
+            throw new OrderNotFoundException();
+        }
+
+        if (!order.getClientId().equals(clientId)) {
+            throw new UnauthorizedOrderAccessException();
+        }
+
+        return orderLogClientPort.getOrderLogsByOrderId(orderId);
+    }
 
 }

@@ -7,7 +7,7 @@ import com.pragma.powerup.usermicroservice.adapters.driving.http.mapper.IOrderRe
 import com.pragma.powerup.usermicroservice.adapters.driving.http.mapper.IOrderResponseMapper;
 import com.pragma.powerup.usermicroservice.configuration.security.jwt.JwtProvider;
 import com.pragma.powerup.usermicroservice.domain.api.IOrderServicePort;
-import com.pragma.powerup.usermicroservice.domain.model.Order;
+import com.pragma.powerup.usermicroservice.domain.model.OrderLogJson;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
@@ -57,5 +57,11 @@ public class OrderHandlerImpl implements IOrderHandler {
     public void cancelOrder(Long orderId, HttpServletRequest request) {
         Long clientId = jwtProvider.getUserIdFromToken(request.getHeader("Authorization"));
         orderServicePort.cancelOrder(orderId, clientId);
+    }
+
+    @Override
+    public List<OrderLogJson> getOrderLogsByOrderId(Long orderId, HttpServletRequest request) {
+        Long clientId = jwtProvider.getUserIdFromToken(request.getHeader("Authorization"));
+        return orderServicePort.getOrderLogsByOrderId(orderId, clientId);
     }
 }
