@@ -1,5 +1,7 @@
 package com.pragma.powerup.usermicroservice.domain.api;
 
+import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.EmployeeAverageElapsedTimeDto;
+import com.pragma.powerup.usermicroservice.domain.model.EmployeeRanking;
 import com.pragma.powerup.usermicroservice.domain.model.Order;
 import com.pragma.powerup.usermicroservice.domain.model.OrderLogJson;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,5 +27,6 @@ public interface IOrderServicePort {
     String calculateElapsedTime(Long orderId, Long ownerId);
 
     String calculateAverageElapsedTimeByEmployee(Long assignedEmployeeId, Long ownerId);
+    List<EmployeeRanking> displayEmployeeRanking(Long ownerId);
 }
 

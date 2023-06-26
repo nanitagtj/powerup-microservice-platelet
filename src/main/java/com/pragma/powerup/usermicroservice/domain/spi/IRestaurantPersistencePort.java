@@ -11,4 +11,5 @@ public interface IRestaurantPersistencePort {
     Page<Restaurant> getAllRestaurants(Pageable pageable);
     Long getRestaurantOwnerId(Long restaurantId);
 
+    Restaurant getRestaurantByOwnerId(Long idOwner);
 }

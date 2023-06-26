@@ -1,5 +1,6 @@
 package com.pragma.powerup.usermicroservice.domain.usecase;
 
+import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.EmployeeAverageElapsedTimeDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.UserResponseDto;
 import com.pragma.powerup.usermicroservice.configuration.security.jwt.JwtProvider;
 import com.pragma.powerup.usermicroservice.domain.api.IOrderServicePort;
@@ -21,8 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static com.pragma.powerup.usermicroservice.domain.orderMessage.OrderMessage.*;
 
@@ -35,8 +35,9 @@ public class OrderUseCase implements IOrderServicePort {
     private final IMessageClientPort messageClientPort;
     private final IOrderMessagePersistencePort orderMessagePersistencePort;
     private final IOrderLogClientPort orderLogClientPort;
+    private final IRestaurantPersistencePort restaurantPersistencePort;
 
-    public OrderUseCase(IOrderDishPersistencePort orderDishPersistencePort, IOrderPersistencePort orderPersistencePort, IEmployeeRestaurantPersistencePort employeeRestaurantPersistencePort, IDishPersistencePort dishPersistencePort, IUserClientPort userClientPort, IMessageClientPort messageClientPort, IOrderMessagePersistencePort orderMessagePersistencePort, IOrderLogClientPort orderLogClientPort) {
+    public OrderUseCase(IOrderDishPersistencePort orderDishPersistencePort, IOrderPersistencePort orderPersistencePort, IEmployeeRestaurantPersistencePort employeeRestaurantPersistencePort, IDishPersistencePort dishPersistencePort, IUserClientPort userClientPort, IMessageClientPort messageClientPort, IOrderMessagePersistencePort orderMessagePersistencePort, IOrderLogClientPort orderLogClientPort, IRestaurantPersistencePort restaurantPersistencePort) {
         this.orderDishPersistencePort = orderDishPersistencePort;
         this.orderPersistencePort = orderPersistencePort;
         this.employeeRestaurantPersistencePort = employeeRestaurantPersistencePort;
@@ -45,6 +46,7 @@ public class OrderUseCase implements IOrderServicePort {
         this.messageClientPort = messageClientPort;
         this.orderMessagePersistencePort = orderMessagePersistencePort;
         this.orderLogClientPort = orderLogClientPort;
+        this.restaurantPersistencePort = restaurantPersistencePort;
     }
 
     @Autowired
@@ -312,5 +314,25 @@ public class OrderUseCase implements IOrderServicePort {
         return averageElapsedTime.toString();
     }
 
+    @Override
+    public List<EmployeeRanking> displayEmployeeRanking(Long ownerId) {
+        List<EmployeeRanking> ranking = new ArrayList<>();
+
+        Long restaurantId = restaurantPersistencePort.getRestaurantByOwnerId(ownerId).getId();
+        List<EmployeeRestaurant> employees = employeeRestaurantPersistencePort.getEmployeeRestaurantsByRestaurantId(restaurantId);
+        for (EmployeeRestaurant employee : employees) {
+            Long employeeId = employee.getEmployeeId();
+            String averageElapsedTimeStr = calculateAverageElapsedTimeByEmployee(employeeId, ownerId);
+            if (!averageElapsedTimeStr.equals("No completed orders found for the employee")) {
+                EmployeeRanking employeeRanking = new EmployeeRanking();
+                employeeRanking.setEmployeeId(employeeId);
+                employeeRanking.setAverageElapsedTime(averageElapsedTimeStr);
+                ranking.add(employeeRanking);
+            }
+        }
+
+        ranking.sort(Comparator.comparing(e -> Duration.parse(e.getAverageElapsedTime())));
+        return ranking;
+    }
 
 }

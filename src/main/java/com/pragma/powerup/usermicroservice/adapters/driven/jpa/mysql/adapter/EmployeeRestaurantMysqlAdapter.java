@@ -7,6 +7,9 @@ import com.pragma.powerup.usermicroservice.domain.model.EmployeeRestaurant;
 import com.pragma.powerup.usermicroservice.domain.spi.IEmployeeRestaurantPersistencePort;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RequiredArgsConstructor
 public class EmployeeRestaurantMysqlAdapter implements IEmployeeRestaurantPersistencePort {
     private final IEmployeeRestaurantRepository employeeRestaurantRepository;
@@ -33,5 +36,13 @@ public class EmployeeRestaurantMysqlAdapter implements IEmployeeRestaurantPersis
     @Override
     public EmployeeRestaurantEntity getRestaurantEmployee(Long employeeId) {
         return employeeRestaurantRepository.findByEmployeeId(employeeId);
+    }
+
+    @Override
+    public List<EmployeeRestaurant> getEmployeeRestaurantsByRestaurantId(Long restaurantId) {
+        List<EmployeeRestaurantEntity> entities = employeeRestaurantRepository.findByRestaurantId(restaurantId);
+        return entities.stream()
+                .map(employeeRestaurantEntityMapper::toEmployeeRestaurant)
+                .collect(Collectors.toList());
     }
 }

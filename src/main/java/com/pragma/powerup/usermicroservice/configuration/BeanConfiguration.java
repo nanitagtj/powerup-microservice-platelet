@@ -96,7 +96,7 @@ public class BeanConfiguration {
     }
     @Bean
     public IOrderServicePort orderServicePort() {
-        return new OrderUseCase(orderDishPersistencePort(), orderPersistencePort(),employeeRestaurantPersistencePort(), dishPersistencePort(), userClientPort(), messageClientPort(), orderMessagePersistencePort(), orderLogClientPort());
+        return new OrderUseCase(orderDishPersistencePort(), orderPersistencePort(),employeeRestaurantPersistencePort(), dishPersistencePort(), userClientPort(), messageClientPort(), orderMessagePersistencePort(), orderLogClientPort(), restaurantPersistencePort());
     }
 
     @Bean

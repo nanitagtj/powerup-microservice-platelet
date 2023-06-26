@@ -1,6 +1,8 @@
 package com.pragma.powerup.usermicroservice.adapters.driving.http.handlers.impl;
 
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request.OrderRequestDto;
+import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.AverageElapsedTimeRankingResponseDto;
+import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.EmployeeAverageElapsedTimeDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderResponseDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.handlers.IOrderHandler;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.mapper.IOrderRequestMapper;
@@ -80,6 +82,28 @@ public class OrderHandlerImpl implements IOrderHandler {
         Long ownerId = jwtProvider.getUserIdFromToken(request.getHeader("Authorization"));
         String averageElapsedTime = orderServicePort.calculateAverageElapsedTimeByEmployee(assignedEmployeeId, ownerId);
         return formatElapsedTime(averageElapsedTime);
+    }
+
+    @Override
+    public List<EmployeeAverageElapsedTimeDto> displayEmployeeRanking(HttpServletRequest request) {
+        Long ownerId = jwtProvider.getUserIdFromToken(request.getHeader("Authorization"));
+        List<EmployeeAverageElapsedTimeDto> averageElapsedTimeList = orderResponseMapper.toDisplay(orderServicePort.displayEmployeeRanking(ownerId));
+
+        formatElapsedTime(averageElapsedTimeList);
+
+        return averageElapsedTimeList;
+    }
+
+    private void formatElapsedTime(List<EmployeeAverageElapsedTimeDto> employeeList) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+        for (EmployeeAverageElapsedTimeDto employee : employeeList) {
+            String averageElapsedTimeStr = employee.getAverageElapsedTime();
+            Duration averageElapsedTime = Duration.parse(averageElapsedTimeStr);
+            LocalTime localTime = LocalTime.MIDNIGHT.plus(averageElapsedTime);
+            String formattedElapsedTime = localTime.format(formatter);
+            employee.setAverageElapsedTime(formattedElapsedTime);
+        }
     }
 
     private String formatElapsedTime(String elapsedTime) {

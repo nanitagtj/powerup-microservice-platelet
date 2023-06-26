@@ -1,6 +1,8 @@
 package com.pragma.powerup.usermicroservice.adapters.driving.http.mapper;
 
+import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.EmployeeAverageElapsedTimeDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderResponseDto;
+import com.pragma.powerup.usermicroservice.domain.model.EmployeeRanking;
 import com.pragma.powerup.usermicroservice.domain.model.Order;
 
 import com.pragma.powerup.usermicroservice.domain.model.OrderDish;
@@ -25,4 +27,6 @@ public interface IOrderResponseMapper {
     default Long map(Restaurant restaurant) {
         return restaurant.getId();
     }
+
+    List<EmployeeAverageElapsedTimeDto> toDisplay(List<EmployeeRanking> employeeRankings);
 }

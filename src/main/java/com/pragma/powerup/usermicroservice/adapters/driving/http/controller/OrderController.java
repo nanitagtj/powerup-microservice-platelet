@@ -1,9 +1,7 @@
 package com.pragma.powerup.usermicroservice.adapters.driving.http.controller;
 
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request.OrderRequestDto;
-import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.AverageElapsedTimeResponseDto;
-import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.ElapsedTimeResponseDto;
-import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderResponseDto;
+import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.*;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.handlers.IOrderHandler;
 import com.pragma.powerup.usermicroservice.configuration.Constants;
 import com.pragma.powerup.usermicroservice.domain.model.OrderLogJson;
@@ -164,5 +162,19 @@ public class OrderController {
         AverageElapsedTimeResponseDto responseDto = new AverageElapsedTimeResponseDto(elapsedTime);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Collections.singletonMap(Constants.EFFICIENCY_BY_EMPLOYEE_MESSAGE, responseDto));
+    }
+
+    @Operation(summary = "Get average elapsed time ranking",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Average elapsed time ranking retrieved",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/AverageElapsedTimeRankingResponseDto"))),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error")))
+            })
+    @GetMapping("/average-elapsed-time-ranking")
+    public ResponseEntity<AverageElapsedTimeRankingResponseDto> displayAverageElapsedTimeRanking(HttpServletRequest request) {
+        List<EmployeeAverageElapsedTimeDto> ranking = orderHandler.displayEmployeeRanking(request);
+        AverageElapsedTimeRankingResponseDto responseDto = new AverageElapsedTimeRankingResponseDto(ranking);
+        return ResponseEntity.ok(responseDto);
     }
 }
