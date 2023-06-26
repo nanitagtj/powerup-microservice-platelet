@@ -1,11 +1,10 @@
 package com.pragma.powerup.usermicroservice.adapters.driving.http.controller;
 
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request.OrderRequestDto;
-import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request.RestaurantRequestDto;
+import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.AverageElapsedTimeResponseDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.ElapsedTimeResponseDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderResponseDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.handlers.IOrderHandler;
-import com.pragma.powerup.usermicroservice.adapters.driving.http.handlers.IRestaurantHandler;
 import com.pragma.powerup.usermicroservice.configuration.Constants;
 import com.pragma.powerup.usermicroservice.domain.model.OrderLogJson;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,16 +14,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.naming.AuthenticationException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -155,5 +149,20 @@ public class OrderController {
         ElapsedTimeResponseDto responseDto = new ElapsedTimeResponseDto(elapsedTime);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Collections.singletonMap(Constants.EFFICIENCY_MESSAGE, responseDto));
+    }
+
+    @Operation(summary = "Calculate average elapsed time for an employee",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Average elapsed time calculated",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/AverageElapsedTimeResponseDto"))),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error")))
+            })
+    @GetMapping("/employee/{assignedEmployeeId}/average-elapsed-time")
+    public ResponseEntity<Map<String, AverageElapsedTimeResponseDto>> calculateAverageElapsedTimeByEmployee(@PathVariable("assignedEmployeeId") Long assignedEmployeeId, HttpServletRequest request) {
+        String elapsedTime = orderHandler.calculateAverageElapsedTimeByEmployee(assignedEmployeeId, request);
+        AverageElapsedTimeResponseDto responseDto = new AverageElapsedTimeResponseDto(elapsedTime);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Collections.singletonMap(Constants.EFFICIENCY_BY_EMPLOYEE_MESSAGE, responseDto));
     }
 }

@@ -21,4 +21,5 @@ public interface IOrderHandler {
     List<OrderLogJson> getOrderLogsByOrderId(Long orderId, HttpServletRequest request);
 
     String calculateElapsedTime(Long orderId, HttpServletRequest request);
+    String calculateAverageElapsedTimeByEmployee(Long assignedEmployeeId, HttpServletRequest request);
 }

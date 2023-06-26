@@ -23,5 +23,7 @@ public interface IOrderServicePort {
     List<OrderLogJson> getOrderLogsByOrderId(Long orderId, Long clientId);
 
     String calculateElapsedTime(Long orderId, Long ownerId);
+
+    String calculateAverageElapsedTimeByEmployee(Long assignedEmployeeId, Long ownerId);
 }
 

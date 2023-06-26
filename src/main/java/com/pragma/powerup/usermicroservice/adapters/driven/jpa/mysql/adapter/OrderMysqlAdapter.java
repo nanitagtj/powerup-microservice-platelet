@@ -48,4 +48,10 @@ import java.util.List;
         orderRepository.saveAll(orderEntities);
     }
 
+    @Override
+    public List<Order> getOrdersByEmployeeId(Long assignedEmployeeId) {
+        List<OrderEntity> orderEntities = orderRepository.findByAssignedEmployeeId(assignedEmployeeId);
+        return orderEntityMapper.toDomainList(orderEntities);
+    }
+
 }

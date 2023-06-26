@@ -75,6 +75,13 @@ public class OrderHandlerImpl implements IOrderHandler {
         return formatElapsedTime(elapsedTime);
     }
 
+    @Override
+    public String calculateAverageElapsedTimeByEmployee(Long assignedEmployeeId, HttpServletRequest request) {
+        Long ownerId = jwtProvider.getUserIdFromToken(request.getHeader("Authorization"));
+        String averageElapsedTime = orderServicePort.calculateAverageElapsedTimeByEmployee(assignedEmployeeId, ownerId);
+        return formatElapsedTime(averageElapsedTime);
+    }
+
     private String formatElapsedTime(String elapsedTime) {
         Duration duration = Duration.parse(elapsedTime);
         LocalTime localTime = LocalTime.MIDNIGHT.plus(duration);

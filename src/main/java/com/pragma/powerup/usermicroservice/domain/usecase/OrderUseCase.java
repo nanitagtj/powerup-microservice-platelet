@@ -19,6 +19,7 @@ import com.pragma.powerup.usermicroservice.domain.spi.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -279,6 +280,36 @@ public class OrderUseCase implements IOrderServicePort {
             throw new UnauthorizedOrderAccessException();
         }
         return orderLogClientPort.calculateElapsedTimeByOrderId(orderId);
+    }
+
+    public String calculateAverageElapsedTimeByEmployee(Long assignedEmployeeId, Long ownerId) {
+
+        List<Order> employeeOrders = orderPersistencePort.getOrdersByEmployeeId(assignedEmployeeId);
+        List<Duration> orderDurations = new ArrayList<>();
+
+        for (Order order : employeeOrders) {
+            if (order.getStatus().equalsIgnoreCase("Delivered")) {
+                Long orderId = order.getId();
+                String elapsedTimeStr = orderLogClientPort.calculateElapsedTimeByOrderId(orderId);
+
+                if (elapsedTimeStr != null) {
+                    Duration elapsedTime = Duration.parse(elapsedTimeStr);
+                    orderDurations.add(elapsedTime);
+                }
+            }
+        }
+
+        if (orderDurations.isEmpty()) {
+            return "No completed orders found for the employee";
+        }
+
+        Duration totalElapsedTime = Duration.ZERO;
+        for (Duration duration : orderDurations) {
+            totalElapsedTime = totalElapsedTime.plus(duration);
+        }
+
+        Duration averageElapsedTime = totalElapsedTime.dividedBy(orderDurations.size());
+        return averageElapsedTime.toString();
     }
 
 
