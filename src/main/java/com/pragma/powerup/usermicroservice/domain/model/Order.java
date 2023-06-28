@@ -29,6 +29,9 @@ public class Order {
         this.amount = amount;
     }
 
+    public Order(long l, String awaiting, long l1, long l2, long l3) {
+    }
+
     public Long getId() {
         return id;
     }

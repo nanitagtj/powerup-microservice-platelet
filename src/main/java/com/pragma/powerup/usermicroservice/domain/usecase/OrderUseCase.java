@@ -1,8 +1,6 @@
 package com.pragma.powerup.usermicroservice.domain.usecase;
 
-import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.EmployeeAverageElapsedTimeDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.UserResponseDto;
-import com.pragma.powerup.usermicroservice.configuration.security.jwt.JwtProvider;
 import com.pragma.powerup.usermicroservice.domain.api.IOrderServicePort;
 
 import com.pragma.powerup.usermicroservice.domain.clientapi.IMessageClientPort;
@@ -17,8 +15,7 @@ import com.pragma.powerup.usermicroservice.domain.exceptions.*;
 import com.pragma.powerup.usermicroservice.domain.model.*;
 import com.pragma.powerup.usermicroservice.domain.orderMessage.OrderLogJsonSerialize;
 import com.pragma.powerup.usermicroservice.domain.spi.*;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.pragma.powerup.usermicroservice.domain.validations.OrderUseCaseValidations;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -30,85 +27,50 @@ public class OrderUseCase implements IOrderServicePort {
     private final IOrderDishPersistencePort orderDishPersistencePort;
     private final IOrderPersistencePort orderPersistencePort;
     private final IEmployeeRestaurantPersistencePort employeeRestaurantPersistencePort;
-    private final IDishPersistencePort dishPersistencePort;
     private final IUserClientPort userClientPort;
     private final IMessageClientPort messageClientPort;
     private final IOrderMessagePersistencePort orderMessagePersistencePort;
     private final IOrderLogClientPort orderLogClientPort;
     private final IRestaurantPersistencePort restaurantPersistencePort;
+    private final OrderUseCaseValidations validations;
 
-    public OrderUseCase(IOrderDishPersistencePort orderDishPersistencePort, IOrderPersistencePort orderPersistencePort, IEmployeeRestaurantPersistencePort employeeRestaurantPersistencePort, IDishPersistencePort dishPersistencePort, IUserClientPort userClientPort, IMessageClientPort messageClientPort, IOrderMessagePersistencePort orderMessagePersistencePort, IOrderLogClientPort orderLogClientPort, IRestaurantPersistencePort restaurantPersistencePort) {
+    public OrderUseCase(IOrderDishPersistencePort orderDishPersistencePort, IOrderPersistencePort orderPersistencePort, IEmployeeRestaurantPersistencePort employeeRestaurantPersistencePort, IUserClientPort userClientPort, IMessageClientPort messageClientPort, IOrderMessagePersistencePort orderMessagePersistencePort, IOrderLogClientPort orderLogClientPort, IRestaurantPersistencePort restaurantPersistencePort, OrderUseCaseValidations validations) {
         this.orderDishPersistencePort = orderDishPersistencePort;
         this.orderPersistencePort = orderPersistencePort;
         this.employeeRestaurantPersistencePort = employeeRestaurantPersistencePort;
-        this.dishPersistencePort = dishPersistencePort;
         this.userClientPort = userClientPort;
         this.messageClientPort = messageClientPort;
         this.orderMessagePersistencePort = orderMessagePersistencePort;
         this.orderLogClientPort = orderLogClientPort;
         this.restaurantPersistencePort = restaurantPersistencePort;
+        this.validations = validations;
     }
 
-    @Autowired
-    JwtProvider jwtProvider;
-
     @Override
-    public void createOrder(Order order, HttpServletRequest request) {
+    public void createOrder(Order order, Long clientId) {
         LocalDateTime dateTime = LocalDateTime.now();
         String status = "Awaiting";
-        String token = request.getHeader("Authorization");
-        Long clientId = jwtProvider.getUserIdFromToken(token);
 
-        if (hasInProgressOrder(clientId)) {
+        if (validations.hasInProgressOrder(clientId)) {
             throw new OrderInProgressException();
         }
 
         order.setClientId(clientId);
         order.setDateTime(dateTime);
         order.setStatus(status);
-        double amount = calculateTotalAmount(order.getOrderDishes());
+        double amount = validations.calculateTotalAmount(order.getOrderDishes());
         order.setAmount(amount);
         Order orderEntity = orderPersistencePort.saveOrder(order);
 
         order.getOrderDishes().forEach(orderDish -> orderDish.setOrder(orderEntity));
         orderDishPersistencePort.saveOrderDish(order.getOrderDishes());
 
-        OrderLogJson orderLog = new OrderLogJson();
-        orderLog.setOrderId(orderEntity.getId());
-        orderLog.setPreviousStatus("");
-        orderLog.setNewStatus(orderEntity.getStatus());
-        orderLog.setTimestamp(LocalDateTime.now());
-
-        orderLogClientPort.saveOrderLog(OrderLogJsonSerialize.serializeToJson(orderLog));
-    }
-
-    private double calculateTotalAmount(List<OrderDish> orderDishes) {
-        double totalAmount = 0.0;
-        for (OrderDish orderDish : orderDishes) {
-            Dish dish = orderDish.getDish();
-            Dish persistedDish = dishPersistencePort.getDishById(dish.getId());
-            if (persistedDish != null) {
-                totalAmount += persistedDish.getPrice() * orderDish.getQuantity();
-            }
-        }
-        return totalAmount;
-    }
-
-    private boolean hasInProgressOrder(Long clientId) {
-        List<Order> clientOrders = orderPersistencePort.getOrdersByClientId(clientId);
-
-        for (Order order : clientOrders) {
-            if (order.getStatus().equalsIgnoreCase("In process") || order.getStatus().equalsIgnoreCase("Awaiting")) {
-                return true;
-            }
-        }
-
-        return false;
+        validations.saveOrderLogForCreateOrder(orderEntity.getId());
     }
 
     @Override
     public List<Order> getRestaurantOrder(int pageNumber, int pageSize, String status, Long employeeId) {
-        validateRange(pageNumber, pageSize);
+        validations.validateRange(pageNumber, pageSize);
         pageNumber -= 1;
         Long idRestaurant = employeeRestaurantPersistencePort.getRestaurantEmployee(employeeId).getRestaurant().getId();
         List<OrderDish> orderDishes = orderDishPersistencePort.getRestaurantOrderDish(status, idRestaurant);
@@ -143,42 +105,17 @@ public class OrderUseCase implements IOrderServicePort {
             boolean isEmployeeAssigned = employeeRestaurantPersistencePort.isEmployeeAssignedToRestaurant(employeeId, restaurantId);
 
             if (isEmployeeAssigned) {
-                if (order.getAssignedEmployeeId() != null) {
-                    throw new EmployeeAssignedToTheSameRestaurantException();
-                }
-
-                if (order.getStatus().equalsIgnoreCase("awaiting")) {
-                    order.setAssignedEmployeeId(employeeId);
-                    order.setStatus("In process");
-                    orders.add(order);
-                } else {
-                    throw new InvalidOrderStatusException();
-                }
+                validations.checkAndAssignOrderToEmployee(order, employeeId, orders);
             } else {
                 throw new EmployeeNotAssignedException();
             }
-            OrderLogJson orderLog = new OrderLogJson();
-            orderLog.setOrderId(order.getId());
-            orderLog.setPreviousStatus("Awaiting");
-            orderLog.setNewStatus(order.getStatus());
-            orderLog.setTimestamp(LocalDateTime.now());
-
-            orderLogClientPort.saveOrderLog(OrderLogJsonSerialize.serializeToJson(orderLog));
         }
 
         orderPersistencePort.saveOrderAll(orders);
     }
 
-
-    private void validateRange(int pageNumber, int pageSize) {
-        if (pageNumber <= 0 || pageSize <= 0) {
-            throw new IllegalArgumentException();
-        }
-    }
-
     @Override
-    public void updateStatusToReady(Long id, HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
+    public void updateStatusToReady(Long id, String authorizationHeader) {
         Order order = orderPersistencePort.getOrderById(id);
         validateOrder(order, id);
 
@@ -189,7 +126,7 @@ public class OrderUseCase implements IOrderServicePort {
         order.setStatus("Ready");
 
         Long clientId = order.getClientId();
-        UserResponseDto userResponseDto = userClientPort.getUserById(clientId, header);
+        UserResponseDto userResponseDto = userClientPort.getUserById(clientId, authorizationHeader);
         String phone = userResponseDto.getPhone();
         exists(phone);
 
@@ -199,13 +136,7 @@ public class OrderUseCase implements IOrderServicePort {
         orderMessagePersistencePort.savePin(new Pin(order, pin));
         orderPersistencePort.saveOrder(order);
 
-        OrderLogJson orderLog = new OrderLogJson();
-        orderLog.setOrderId(order.getId());
-        orderLog.setPreviousStatus("In process");
-        orderLog.setNewStatus(order.getStatus());
-        orderLog.setTimestamp(LocalDateTime.now());
-
-        orderLogClientPort.saveOrderLog(OrderLogJsonSerialize.serializeToJson(orderLog));
+        validations.saveOrderLogForUpdateStatusToReady(order.getId());
     }
     @Override
     public void updateStatusToDelivered(Long orderId, String securityPin) {
@@ -247,7 +178,7 @@ public class OrderUseCase implements IOrderServicePort {
 
         order.setStatus("Cancelled");
         orderPersistencePort.saveOrder(order);
-}
+    }
     @Override
     public void saveOrderLog(OrderLogJson orderLogJson) {
         String json = OrderLogJsonSerialize.serializeToJson(orderLogJson);
@@ -302,7 +233,7 @@ public class OrderUseCase implements IOrderServicePort {
         }
 
         if (orderDurations.isEmpty()) {
-            return "No completed orders found for the employee";
+            throw new NoCompletedOrdersException();
         }
 
         Duration totalElapsedTime = Duration.ZERO;

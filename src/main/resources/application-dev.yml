@@ -6,7 +6,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost/platelet
     username: root
-    password: 1234
+    password: Cami1234
   jpa:
     hibernate:
       ddl-auto: update

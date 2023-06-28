@@ -1,7 +1,6 @@
 package com.pragma.powerup.usermicroservice.adapters.driving.http.handlers.impl;
 
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request.OrderRequestDto;
-import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.AverageElapsedTimeRankingResponseDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.EmployeeAverageElapsedTimeDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderResponseDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.handlers.IOrderHandler;
@@ -34,7 +33,8 @@ public class OrderHandlerImpl implements IOrderHandler {
 
     @Override
     public void createOrder(OrderRequestDto orderRequestDto, HttpServletRequest request) {
-        orderServicePort.createOrder(orderRequestMapper.toOrder(orderRequestDto), request);
+        Long clientId = jwtProvider.getUserIdFromToken(request.getHeader("Authorization"));
+        orderServicePort.createOrder(orderRequestMapper.toOrder(orderRequestDto), clientId);
     }
 
     @Override
@@ -50,7 +50,8 @@ public class OrderHandlerImpl implements IOrderHandler {
 
     @Override
     public void updateStatusToReady(Long id, HttpServletRequest request) {
-        orderServicePort.updateStatusToReady(id, request);
+        String authorizationHeader = request.getHeader("Authorization");
+        orderServicePort.updateStatusToReady(id, authorizationHeader);
     }
 
     @Override

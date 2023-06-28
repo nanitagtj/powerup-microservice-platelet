@@ -9,9 +9,9 @@ import java.util.List;
 
 public interface IDishServicePort {
 
-    void createDish(Dish dish, HttpServletRequest req);
+    void createDish(Dish dish, Long ownerId);
     void updateDishStatus(Long id, boolean active, HttpServletRequest request);
-    void updateDish(Long id, Dish dish, HttpServletRequest request);
+    void updateDish(Long id, Dish dish, Long ownerId);
 
     Dish getDishById(Long dishId);
 

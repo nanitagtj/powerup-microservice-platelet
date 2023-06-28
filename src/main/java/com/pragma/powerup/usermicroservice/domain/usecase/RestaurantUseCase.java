@@ -7,7 +7,7 @@ import com.pragma.powerup.usermicroservice.domain.exceptions.DuplicateRestaurant
 import com.pragma.powerup.usermicroservice.domain.exceptions.InvalidUserException;
 import com.pragma.powerup.usermicroservice.domain.model.Restaurant;
 import com.pragma.powerup.usermicroservice.domain.spi.IRestaurantPersistencePort;
-import jakarta.servlet.http.HttpServletRequest;
+import com.pragma.powerup.usermicroservice.domain.validations.NullUserException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -22,23 +22,19 @@ public class RestaurantUseCase implements IRestaurantServicePort {
         this.userClientPort = userClientPort;
     }
 
-    public void createRestaurant(Restaurant restaurant, HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        UserResponseDto user = userClientPort.getUserById(restaurant.getIdOwner(), token);
-        validateOwner(user, token);
+    public void createRestaurant(Restaurant restaurant, String authorizationHeader) {
+        UserResponseDto user = userClientPort.getUserById(restaurant.getIdOwner(), authorizationHeader);
+        validateOwner(user);
         validateUniqueName(restaurant.getName());
         restaurantPersistencePort.saveRestaurant(restaurant);
     }
 
-    private void validateOwner(UserResponseDto user, String token) {
+    private void validateOwner(UserResponseDto user) {
         if (user == null) {
-            throw new InvalidUserException();
+            throw new NullUserException();
         }
 
-        Long userRoleId = user.getIdRole();
-        UserResponseDto roleUser = userClientPort.getUserById(userRoleId, token);
-
-        if (roleUser == null || !OWNER_ROLE_ID.equals(roleUser.getId())) {
+        if (!user.getIdRole().equals(OWNER_ROLE_ID)) {
             throw new InvalidUserException();
         }
     }

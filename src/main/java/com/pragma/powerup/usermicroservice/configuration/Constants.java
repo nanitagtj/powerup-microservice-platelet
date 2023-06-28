@@ -10,6 +10,10 @@ public class Constants {
     public static final String ORDER_NOT_FOUND_EXCEPTION = "Order not found";
     public static final String EFFICIENCY_MESSAGE = "The efficiency of your order was: ";
     public static final String EFFICIENCY_BY_EMPLOYEE_MESSAGE = "The efficiency of orders by employee is";
+    public static final String INVALID_PAGE_NUMBER_EXCEPTION = "Invalid page number. Example: 1";
+    public static final String RESTAURANT_NOT_FOUND = "Restaurant not found";
+    public static final String USER_NOT_FOUND = "User is null";
+    public static final String NO_COMPLETED_ORDER_EXCEPTION = "No completed orders";
     public static final String UNAUTHORIZED_CLIENT_ACCESS_EXCEPTION = "You do not have permission to list these logs. Please try with an order associated with your account.";
     public static final String ORDER_UPDATE_MESSAGE = "Order update to status Ready";
     public static final String INVALID_PIN_EXCEPTION = "Invalid Pin";

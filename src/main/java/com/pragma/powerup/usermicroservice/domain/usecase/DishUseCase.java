@@ -3,10 +3,7 @@ package com.pragma.powerup.usermicroservice.domain.usecase;
 import com.pragma.powerup.usermicroservice.configuration.security.jwt.JwtProvider;
 import com.pragma.powerup.usermicroservice.domain.api.IDishServicePort;
 import com.pragma.powerup.usermicroservice.domain.clientapi.IUserClientPort;
-import com.pragma.powerup.usermicroservice.domain.exceptions.DishNotFoundException;
-import com.pragma.powerup.usermicroservice.domain.exceptions.DuplicateRestaurantName;
-import com.pragma.powerup.usermicroservice.domain.exceptions.InvalidUserException;
-import com.pragma.powerup.usermicroservice.domain.exceptions.RestaurantNotFoundException;
+import com.pragma.powerup.usermicroservice.domain.exceptions.*;
 import com.pragma.powerup.usermicroservice.domain.model.Dish;
 import com.pragma.powerup.usermicroservice.domain.model.Restaurant;
 import com.pragma.powerup.usermicroservice.domain.spi.IDishPersistencePort;
@@ -36,17 +33,15 @@ public class DishUseCase implements IDishServicePort {
         this.userClientPort = userClientPort;
     }
 
-    public void createDish(Dish dish, HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
+    public void createDish(Dish dish, Long ownerId) {
         Restaurant restaurant = restaurantPersistencePort.getRestaurantById(dish.getRestaurant().getId());
         dish.setActive(true);
 
-        Long userId = jwtProvider.getUserIdFromToken(token);
-        if (userId == null) {
+        if (ownerId == null) {
             throw new InvalidUserException();
         }
 
-        if (!restaurant.getIdOwner().equals(userId)) {
+        if (!restaurant.getIdOwner().equals(ownerId)) {
             throw new InvalidUserException();
         }
         validateUniqueName(dish.getName());
@@ -60,12 +55,18 @@ public class DishUseCase implements IDishServicePort {
     }
 
     @Override
-    public void updateDish(Long id, Dish dish, HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        Long userId = jwtProvider.getUserIdFromToken(token);
+    public void updateDish(Long id, Dish dish, Long ownerId) {
         Restaurant restaurant = restaurantPersistencePort.getRestaurantById(dish.getRestaurant().getId());
 
-        if (!restaurant.getIdOwner().equals(userId)) {
+        if (restaurant == null) {
+            throw new RestaurantNoFoundException();
+        }
+
+        if (restaurant.getIdOwner() == null) {
+            throw new InvalidUserException();
+        }
+
+        if (!restaurant.getIdOwner().equals(ownerId)) {
             throw new InvalidUserException();
         }
 

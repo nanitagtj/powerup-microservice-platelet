@@ -24,6 +24,9 @@ public class Dish {
         this.active = active;
     }
 
+    public Dish(long l, int i) {
+    }
+
     public Long getId() {
         return id;
     }

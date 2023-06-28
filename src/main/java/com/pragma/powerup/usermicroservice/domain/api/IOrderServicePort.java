@@ -9,10 +9,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface IOrderServicePort {
-    void createOrder(Order order, HttpServletRequest request);
+    void createOrder(Order order, Long clientId);
     List<Order> getRestaurantOrder(int pageNumber, int pageSize, String statusOrder, Long idEmployee);
 
-    void updateStatusToReady(Long id, HttpServletRequest request);
+    void updateStatusToReady(Long id, String authorizationHeader);
 
     void assignEmployeeToOrders(List<Long> orderIds, Long employeeId);
 

@@ -20,7 +20,7 @@ public class RestaurantRequestDto {
     @Column(nullable = false)
     private String address;
     @Column(nullable = false)
-    @Pattern(regexp = "^\\+?[0-9]{12}$", message = "phone number must be like = +573221126845")
+    @Pattern(regexp = "^\\+?[0-9]{11}$", message = "phone number must be like = +573221126845")
     private String phone;
     @Column(nullable = false)
     private String urlLogo;

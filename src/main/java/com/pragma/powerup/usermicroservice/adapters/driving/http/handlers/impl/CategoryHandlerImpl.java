@@ -17,7 +17,6 @@ public class CategoryHandlerImpl implements ICategoryHandler {
     private final ICategoryResponseMapper categoryResponseMapper;
     private final ICategoryRequestMapper categoryRequestMapper;
     private final ICategoryServicePort categoryServicePort;
-
     @Override
     public void createCategory(CategoryRequestDto categoryRequestDto) {
         categoryServicePort.createCategory(categoryRequestMapper.toCategory(categoryRequestDto));

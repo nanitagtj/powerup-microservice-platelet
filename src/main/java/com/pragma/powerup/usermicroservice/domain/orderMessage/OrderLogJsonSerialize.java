@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.pragma.powerup.usermicroservice.domain.model.OrderLogJson;
 
+
 public class OrderLogJsonSerialize {
 
     public static String serializeToJson(OrderLogJson orderLogJson) {
@@ -17,4 +18,6 @@ public class OrderLogJsonSerialize {
             return null;
         }
     }
+
+
 }

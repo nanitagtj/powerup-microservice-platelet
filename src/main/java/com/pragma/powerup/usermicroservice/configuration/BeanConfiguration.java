@@ -13,6 +13,7 @@ import com.pragma.powerup.usermicroservice.domain.clientapi.IOrderLogClientPort;
 import com.pragma.powerup.usermicroservice.domain.clientapi.IUserClientPort;
 import com.pragma.powerup.usermicroservice.domain.spi.*;
 import com.pragma.powerup.usermicroservice.domain.usecase.*;
+import com.pragma.powerup.usermicroservice.domain.validations.OrderUseCaseValidations;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +41,6 @@ public class BeanConfiguration {
     private final IOrderMessageRepository orderMessageRepository;
     private final IOrderMessageEntityMapper orderMessageEntityMapper;
     private final IOrderLogClient orderLogClient;
-
     @Bean
     public IOrderDishPersistencePort orderDishPersistencePort() {
         return new OrderDishMysqlAdapter(orderDishRepository, orderDishEntityMapper);
@@ -96,9 +96,12 @@ public class BeanConfiguration {
     }
     @Bean
     public IOrderServicePort orderServicePort() {
-        return new OrderUseCase(orderDishPersistencePort(), orderPersistencePort(),employeeRestaurantPersistencePort(), dishPersistencePort(), userClientPort(), messageClientPort(), orderMessagePersistencePort(), orderLogClientPort(), restaurantPersistencePort());
+        return new OrderUseCase(orderDishPersistencePort(), orderPersistencePort(),employeeRestaurantPersistencePort(), userClientPort(), messageClientPort(), orderMessagePersistencePort(), orderLogClientPort(), restaurantPersistencePort(), orderUseCaseValidations());
     }
-
+    @Bean
+    public OrderUseCaseValidations orderUseCaseValidations() {
+        return new OrderUseCaseValidations(orderPersistencePort(), dishPersistencePort(), orderLogClientPort());
+    }
     @Bean
     public IEmployeeRestaurantServicePort employeeRestaurantServicePort() {
         return new EmployeeRestaurantUseCase(employeeRestaurantPersistencePort(), restaurantPersistencePort(), userClientPort());

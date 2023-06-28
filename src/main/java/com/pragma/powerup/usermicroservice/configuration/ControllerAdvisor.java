@@ -4,6 +4,7 @@ import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.exceptions.
 import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.exceptions.NoDataFoundException;
 import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.exceptions.PhoneNumberFormatException;
 import com.pragma.powerup.usermicroservice.domain.exceptions.*;
+import com.pragma.powerup.usermicroservice.domain.validations.NullUserException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -115,6 +116,12 @@ public class ControllerAdvisor {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, EMPLOYEE_NOT_ASSIGNED_EXCEPTION));
     }
+    @ExceptionHandler(InvalidPageNumberException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidPageNumberException(InvalidPageNumberException invalidPageNumberException) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, INVALID_PAGE_NUMBER_EXCEPTION));
+    }
+
 
     @ExceptionHandler(InvalidOrderStatusException.class)
     public ResponseEntity<Map<String, String>> handleInvalidOrderStatusException(InvalidOrderStatusException invalidOrderStatusException) {
@@ -147,6 +154,22 @@ public class ControllerAdvisor {
     public ResponseEntity<Map<String, String>> handleUnauthorizedOrderAccessException(UnauthorizedOrderAccessException unauthorizedOrderAccessException) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, UNAUTHORIZED_CLIENT_ACCESS_EXCEPTION));
+    }
+    @ExceptionHandler(RestaurantNoFoundException.class)
+    public ResponseEntity<Map<String, String>> handleRestaurantNoFoundException(RestaurantNoFoundException restaurantNoFoundException) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, RESTAURANT_NOT_FOUND));
+    }
+    @ExceptionHandler(NullUserException.class)
+    public ResponseEntity<Map<String, String>> handleNullUserException(NullUserException nullUserException) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, USER_NOT_FOUND));
+    }
+
+    @ExceptionHandler(NoCompletedOrdersException.class)
+    public ResponseEntity<Map<String, String>> handleNoCompletedOrdersException(NoCompletedOrdersException NoCompletedOrdersException) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, NO_COMPLETED_ORDER_EXCEPTION));
     }
 
 

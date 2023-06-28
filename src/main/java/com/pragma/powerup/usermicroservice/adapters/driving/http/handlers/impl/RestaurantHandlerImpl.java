@@ -24,7 +24,8 @@ public class RestaurantHandlerImpl implements IRestaurantHandler {
 
     @Override
     public void createRestaurant(RestaurantRequestDto restaurantRequestDto, HttpServletRequest request) {
-        restaurantServicePort.createRestaurant(restaurantRequestMapper.toRestaurant(restaurantRequestDto), request);
+        String authorizationHeader = request.getHeader("Authorization");
+        restaurantServicePort.createRestaurant(restaurantRequestMapper.toRestaurant(restaurantRequestDto), authorizationHeader);
     }
 
     @Override
