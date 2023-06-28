@@ -43,6 +43,7 @@ class OrderUseCaseTest {
     private IOrderLogClientPort orderLogClientPort;
     @Mock
     private IRestaurantPersistencePort restaurantPersistencePort;
+
     @Mock
     private OrderUseCaseValidations validations;
 
@@ -567,6 +568,5 @@ class OrderUseCaseTest {
         order.setStatus(status);
         return order;
     }
-
 
 }
