@@ -2,12 +2,18 @@ package com.pragma.powerup.usermicroservice.adapters.driving.http.handlers.impl;
 
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request.OrderRequestDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.EmployeeAverageElapsedTimeDto;
+import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderDishRespDto;
+import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderListResponseDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderResponseDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.handlers.IOrderHandler;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.mapper.IOrderRequestMapper;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.mapper.IOrderResponseMapper;
 import com.pragma.powerup.usermicroservice.configuration.security.jwt.JwtProvider;
 import com.pragma.powerup.usermicroservice.domain.api.IOrderServicePort;
+import com.pragma.powerup.usermicroservice.domain.comparator.DishComparator;
+import com.pragma.powerup.usermicroservice.domain.enums.DishTypeEnum;
+import com.pragma.powerup.usermicroservice.domain.model.Order;
+import com.pragma.powerup.usermicroservice.domain.model.OrderDish;
 import com.pragma.powerup.usermicroservice.domain.model.OrderLogJson;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +24,11 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.pragma.powerup.usermicroservice.configuration.Constants.ORDER_ADDED_MESSAGE;
 
 
 @Service
@@ -35,6 +45,61 @@ public class OrderHandlerImpl implements IOrderHandler {
     public void createOrder(OrderRequestDto orderRequestDto, HttpServletRequest request) {
         Long clientId = jwtProvider.getUserIdFromToken(request.getHeader("Authorization"));
         orderServicePort.createOrder(orderRequestMapper.toOrder(orderRequestDto), clientId);
+    }
+
+    @Override
+    public OrderListResponseDto addOrder(Long orderId) {
+        List<OrderDish> orderDishes = orderServicePort.addOrder(orderId);
+
+        orderDishes.sort(new DishComparator());
+
+        List<DishTypeEnum> dishTypes = orderDishes.stream()
+                .map(OrderDish::getDishTypeEnum)
+                .collect(Collectors.toList());
+
+        OrderListResponseDto responseDto = new OrderListResponseDto();
+        responseDto.setMessage(ORDER_ADDED_MESSAGE);
+        responseDto.setDishTypes(dishTypes);
+
+        return responseDto;
+    }
+
+    @Override
+    public OrderListResponseDto addOrdersByIds(List<Long> orderIds) {
+        List<OrderDish> addedOrderDishes = new ArrayList<>();
+        for (Long orderId : orderIds) {
+            orderServicePort.addOrder(orderId);
+            addedOrderDishes.addAll(orderServicePort.getOrderDishes());
+        }
+
+        addedOrderDishes.sort(new DishComparator());
+
+        List<DishTypeEnum> dishTypes = addedOrderDishes.stream()
+                .map(OrderDish::getDishTypeEnum)
+                .collect(Collectors.toList());
+
+        OrderListResponseDto responseDto = new OrderListResponseDto();
+        responseDto.setMessage(ORDER_ADDED_MESSAGE);
+        responseDto.setDishTypes(dishTypes);
+
+        return responseDto;
+    }
+
+    @Override
+    public List<OrderDishRespDto> getPendingOrders() {
+        List<OrderDish> pendingOrderDishes = orderServicePort.pendingOrders();
+        List<OrderDishRespDto> pendingOrders = new ArrayList<>();
+        for (OrderDish orderDish : pendingOrderDishes) {
+            OrderDishRespDto orderDishRespDto = orderResponseMapper.toOrderDishRespDto(orderDish);
+            pendingOrders.add(orderDishRespDto);
+        }
+
+        return pendingOrders;
+    }
+
+    @Override
+    public List<DishTypeEnum> takeOrder() {
+        return orderServicePort.takeOrder();
     }
 
     @Override

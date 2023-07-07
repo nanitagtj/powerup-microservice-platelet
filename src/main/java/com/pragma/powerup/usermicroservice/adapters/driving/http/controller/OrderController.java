@@ -4,6 +4,10 @@ import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request.Ord
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.*;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.handlers.IOrderHandler;
 import com.pragma.powerup.usermicroservice.configuration.Constants;
+import com.pragma.powerup.usermicroservice.domain.comparator.DishComparator;
+import com.pragma.powerup.usermicroservice.domain.enums.DishTypeEnum;
+import com.pragma.powerup.usermicroservice.domain.model.Order;
+import com.pragma.powerup.usermicroservice.domain.model.OrderDish;
 import com.pragma.powerup.usermicroservice.domain.model.OrderLogJson;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,14 +18,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.pragma.powerup.usermicroservice.configuration.Constants.*;
 
+@Validated
 @RestController
 @RequestMapping("/platelet")
 @RequiredArgsConstructor
@@ -43,6 +50,53 @@ public class OrderController {
                 .body(Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY, ORDER_CREATED_MESSAGE));
     }
 
+    @Operation(summary = "Add a new order",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "order created",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/OrderResponseDto"))),
+                    @ApiResponse(responseCode = "409", description = "order already exists",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error")))
+            })
+    @PostMapping("/addOrder/{orderId}")
+    public ResponseEntity<Map<String, OrderListResponseDto>> addOrder(@PathVariable Long orderId) {
+        OrderListResponseDto responseDto = orderHandler.addOrder(orderId);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY, responseDto));
+    }
+
+    @Operation(summary = "Add multiple orders",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "orders added",
+                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/OrderDish")))
+            })
+    @PostMapping("/addOrders")
+    public ResponseEntity<Map<String, OrderListResponseDto>> addOrders(@RequestParam List<Long> orderIds) {
+        OrderListResponseDto responseDto = orderHandler.addOrdersByIds(orderIds);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY, responseDto));
+    }
+    @Operation(summary = "Take an order and get remaining dish types",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "order taken and remaining dish types retrieved",
+                            content = @Content(mediaType = "application/json", schema = @Schema(type = "array", example = "[\"MEAT\", \"SOUP\", \"DESSERT\"]")))
+            })
+    @GetMapping("/takeOrder")
+    public ResponseEntity<List<DishTypeEnum>> takeOrder() {
+        List<DishTypeEnum> remainingDishTypes = orderHandler.takeOrder();
+        return ResponseEntity.ok(remainingDishTypes);
+    }
+    @Operation(summary = "Get pending orders",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "List of pending orders",
+                            content = @Content(mediaType = "application/json", schema = @Schema(type = "array", implementation = OrderDishRespDto.class)))
+            })
+    @GetMapping("/pendingOrders")
+    public ResponseEntity<List<OrderDishRespDto>> getPendingOrders() {
+        List<OrderDishRespDto> pendingOrders = orderHandler.getPendingOrders();
+        return ResponseEntity.ok(pendingOrders);
+    }
     @Operation(summary = "Get orders from a restaurant",
             responses = {
                     @ApiResponse(responseCode = "200", description = "[{}]",

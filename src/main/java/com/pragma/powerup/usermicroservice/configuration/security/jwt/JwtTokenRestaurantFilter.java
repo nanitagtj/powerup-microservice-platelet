@@ -47,7 +47,7 @@ public class JwtTokenRestaurantFilter extends OncePerRequestFilter {
                     if (!role.equals("ROLE_CLIENT")) {
                         throw new AuthenticationException("Unauthorized");
                     }
-                } else if (isPageOrders(request) || isUpdateStatusOrderToReady(request) || isUpdateStatusToDelivered(request) || isAssignEmployeeToOrders(request)) {
+                } else if (isPageOrders(request) || isUpdateStatusOrderToReady(request) || isUpdateStatusToDelivered(request) || isAssignEmployeeToOrders(request) || isAddOrder(request) || isAddOrders(request)) {
                     if (!role.equals("ROLE_EMPLOYEE")) {
                         throw new AuthenticationException("Unauthorized");
                     }
@@ -133,6 +133,16 @@ public class JwtTokenRestaurantFilter extends OncePerRequestFilter {
         return request.getMethod().equalsIgnoreCase("GET")
                 && request.getRequestURI().contains("/platelet/order/{orderId}/logs");
     }
+    private boolean isAddOrder(HttpServletRequest request) {
+        return request.getMethod().equalsIgnoreCase("POST")
+                && request.getRequestURI().contains("/platelet/order");
+    }
+
+    private boolean isAddOrders(HttpServletRequest request) {
+        return request.getMethod().equalsIgnoreCase("POST")
+                && request.getRequestURI().contains("/platelet/addOrders");
+    }
+
     private String getToken(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {

@@ -1,7 +1,9 @@
 package com.pragma.powerup.usermicroservice.adapters.driving.http.mapper;
 
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.EmployeeAverageElapsedTimeDto;
+import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderDishRespDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderResponseDto;
+import com.pragma.powerup.usermicroservice.domain.enums.DishTypeEnum;
 import com.pragma.powerup.usermicroservice.domain.model.EmployeeRanking;
 import com.pragma.powerup.usermicroservice.domain.model.Order;
 
@@ -29,4 +31,8 @@ public interface IOrderResponseMapper {
     }
 
     List<EmployeeAverageElapsedTimeDto> toDisplay(List<EmployeeRanking> employeeRankings);
+
+    OrderResponseDto toOrderResponse(Order order);
+
+    OrderDishRespDto toOrderDishRespDto(OrderDish orderDish);
 }

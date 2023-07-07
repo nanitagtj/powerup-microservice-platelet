@@ -2,7 +2,12 @@ package com.pragma.powerup.usermicroservice.adapters.driving.http.handlers;
 
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request.OrderRequestDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.EmployeeAverageElapsedTimeDto;
+import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderDishRespDto;
+import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderListResponseDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderResponseDto;
+import com.pragma.powerup.usermicroservice.domain.enums.DishTypeEnum;
+import com.pragma.powerup.usermicroservice.domain.model.Order;
+import com.pragma.powerup.usermicroservice.domain.model.OrderDish;
 import com.pragma.powerup.usermicroservice.domain.model.OrderLogJson;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -10,6 +15,9 @@ import java.util.List;
 
 public interface IOrderHandler {
     void createOrder(OrderRequestDto orderRequestDto, HttpServletRequest request);
+    OrderListResponseDto addOrder(Long orderId);
+
+    List<DishTypeEnum> takeOrder();
     List<OrderResponseDto> getRestaurantOrders(int pageNumber, int pageSize, String statusOrder);
 
     void updateStatusToReady(Long id, HttpServletRequest request);
@@ -25,4 +33,8 @@ public interface IOrderHandler {
     String calculateAverageElapsedTimeByEmployee(Long assignedEmployeeId, HttpServletRequest request);
 
     List<EmployeeAverageElapsedTimeDto> displayEmployeeRanking(HttpServletRequest request);
+
+    OrderListResponseDto addOrdersByIds(List<Long> orderIds);
+
+    List<OrderDishRespDto> getPendingOrders();
 }

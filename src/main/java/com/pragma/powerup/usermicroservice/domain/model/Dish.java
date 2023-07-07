@@ -9,7 +9,6 @@ public class Dish {
     private Category category;
     private Restaurant restaurant;
     private boolean active;
-
     public Dish() {
     }
 
@@ -22,9 +21,7 @@ public class Dish {
         this.category = category;
         this.restaurant = restaurant;
         this.active = active;
-    }
 
-    public Dish(long l, int i) {
     }
 
     public Long getId() {
@@ -90,4 +87,5 @@ public class Dish {
     public void setActive(boolean active) {
         this.active = active;
     }
+
 }

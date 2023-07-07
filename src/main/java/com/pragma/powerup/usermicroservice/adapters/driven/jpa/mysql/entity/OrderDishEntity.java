@@ -1,6 +1,6 @@
 package com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.pragma.powerup.usermicroservice.domain.enums.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,4 +28,16 @@ public class OrderDishEntity {
 
     @Column(nullable = false)
     private int quantity;
+    @Enumerated(EnumType.STRING)
+    private DishTypeEnum dishTypeEnum;
+
+    private Integer grams;
+    @Enumerated(EnumType.STRING)
+    private SoupAccompanimentEnum soupAccompanimentEnum;
+    @Enumerated(EnumType.STRING)
+    private DessertType dessertType;
+    @Enumerated(EnumType.STRING)
+    private FlavorTypeEnum flavorTypeEnum;
+    @Enumerated(EnumType.STRING)
+    private ToppingTypeEnum toppingTypeEnum;
 }

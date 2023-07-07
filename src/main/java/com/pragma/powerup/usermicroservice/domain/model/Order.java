@@ -32,6 +32,10 @@ public class Order {
     public Order(long l, String awaiting, long l1, long l2, long l3) {
     }
 
+    public Order(Long orderId) {
+        this.id = orderId;
+    }
+
     public Long getId() {
         return id;
     }

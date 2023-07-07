@@ -7,6 +7,8 @@ import com.pragma.powerup.usermicroservice.domain.clientapi.IMessageClientPort;
 import com.pragma.powerup.usermicroservice.domain.clientapi.IOrderLogClientPort;
 import com.pragma.powerup.usermicroservice.domain.clientapi.IUserClientPort;
 
+import com.pragma.powerup.usermicroservice.domain.comparator.DishComparator;
+import com.pragma.powerup.usermicroservice.domain.enums.DishTypeEnum;
 import com.pragma.powerup.usermicroservice.domain.exceptions.EmployeeNotAssignedException;
 import com.pragma.powerup.usermicroservice.domain.exceptions.OrderInProgressException;
 import com.pragma.powerup.usermicroservice.domain.exceptions.OrderNotFoundException;
@@ -33,6 +35,7 @@ public class OrderUseCase implements IOrderServicePort {
     private final IOrderLogClientPort orderLogClientPort;
     private final IRestaurantPersistencePort restaurantPersistencePort;
     private final OrderUseCaseValidations validations;
+    private PriorityQueue<OrderDish> orderDishQueue;
 
     public OrderUseCase(IOrderDishPersistencePort orderDishPersistencePort, IOrderPersistencePort orderPersistencePort, IEmployeeRestaurantPersistencePort employeeRestaurantPersistencePort, IUserClientPort userClientPort, IMessageClientPort messageClientPort, IOrderMessagePersistencePort orderMessagePersistencePort, IOrderLogClientPort orderLogClientPort, IRestaurantPersistencePort restaurantPersistencePort, OrderUseCaseValidations validations) {
         this.orderDishPersistencePort = orderDishPersistencePort;
@@ -44,6 +47,7 @@ public class OrderUseCase implements IOrderServicePort {
         this.orderLogClientPort = orderLogClientPort;
         this.restaurantPersistencePort = restaurantPersistencePort;
         this.validations = validations;
+        orderDishQueue = new PriorityQueue<>(new DishComparator());
     }
 
     @Override
@@ -58,6 +62,9 @@ public class OrderUseCase implements IOrderServicePort {
         order.setClientId(clientId);
         order.setDateTime(dateTime);
         order.setStatus(status);
+
+
+
         double amount = validations.calculateTotalAmount(order.getOrderDishes());
         order.setAmount(amount);
         Order orderEntity = orderPersistencePort.saveOrder(order);
@@ -66,6 +73,55 @@ public class OrderUseCase implements IOrderServicePort {
         orderDishPersistencePort.saveOrderDish(order.getOrderDishes());
 
         validations.saveOrderLogForCreateOrder(orderEntity.getId());
+    }
+
+    @Override
+    public List<OrderDish> addOrder(Long orderId) {
+        Order order = orderPersistencePort.getOrderById(orderId);
+        if (order == null) {
+            return Collections.emptyList();
+        }
+
+        DishTypeEnum dishType = orderDishPersistencePort.getDishTypeByOrderId(orderId);
+        if (dishType != null) {
+            orderDishQueue.add(new OrderDish(orderId, dishType));
+        }
+
+        PriorityQueue<OrderDish> tempQueue = new PriorityQueue<>(orderDishQueue);
+
+        List<OrderDish> orderedOrderDishes = new ArrayList<>();
+        while (!tempQueue.isEmpty()) {
+            orderedOrderDishes.add(tempQueue.poll());
+        }
+
+        return orderedOrderDishes;
+    }
+
+    @Override
+    public List<DishTypeEnum> takeOrder() {
+        if (orderDishQueue.isEmpty()) {
+            throw new OrderNotFoundException();
+        }
+
+        OrderDish takenOrderDish = orderDishQueue.poll();
+
+        List<DishTypeEnum> remainingDishTypes = new ArrayList<>();
+        for (OrderDish orderDish : orderDishQueue) {
+            remainingDishTypes.add(orderDish.getDishTypeEnum());
+        }
+
+        return remainingDishTypes;
+    }
+
+    @Override
+    public List<OrderDish> pendingOrders() {
+        if (orderDishQueue.isEmpty()) {
+            throw new OrderNotFoundException();
+        }
+
+        List<OrderDish> pendingOrderDishes = new ArrayList<>(orderDishQueue);
+
+        return pendingOrderDishes;
     }
 
     @Override
@@ -264,6 +320,11 @@ public class OrderUseCase implements IOrderServicePort {
 
         ranking.sort(Comparator.comparing(e -> Duration.parse(e.getAverageElapsedTime())));
         return ranking;
+    }
+
+    @Override
+    public List<OrderDish> getOrderDishes() {
+        return new ArrayList<>(orderDishQueue);
     }
 
 }

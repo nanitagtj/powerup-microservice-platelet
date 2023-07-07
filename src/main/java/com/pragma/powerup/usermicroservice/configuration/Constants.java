@@ -8,6 +8,7 @@ public class Constants {
     }
     public static final String EMPLOYEERESTAURANT_CREATED_MESSAGE = "Your assigned employee was added successfully";
     public static final String ORDER_NOT_FOUND_EXCEPTION = "Order not found";
+    public static final String ORDER_ADDED_MESSAGE = "Order add";
     public static final String EFFICIENCY_MESSAGE = "The efficiency of your order was: ";
     public static final String EFFICIENCY_BY_EMPLOYEE_MESSAGE = "The efficiency of orders by employee is";
     public static final String INVALID_PAGE_NUMBER_EXCEPTION = "Invalid page number. Example: 1";

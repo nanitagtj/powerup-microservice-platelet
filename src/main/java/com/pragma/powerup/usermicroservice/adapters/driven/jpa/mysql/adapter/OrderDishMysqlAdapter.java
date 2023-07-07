@@ -2,6 +2,7 @@ package com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.adapter;
 
 import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.mappers.IOrderDishEntityMapper;
 import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.repositories.IOrderDishRepository;
+import com.pragma.powerup.usermicroservice.domain.enums.DishTypeEnum;
 import com.pragma.powerup.usermicroservice.domain.model.OrderDish;
 import com.pragma.powerup.usermicroservice.domain.spi.IOrderDishPersistencePort;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,11 @@ public class OrderDishMysqlAdapter implements IOrderDishPersistencePort {
     @Override
     public List<OrderDish> getRestaurantOrderDish(String status, Long idRestaurant) {
         return orderDishEntityMapper.toModel(orderDishRepository.findByOrder_IdRestaurant_IdAndOrder_Status(idRestaurant, status));
+    }
+
+    @Override
+    public DishTypeEnum getDishTypeByOrderId(Long orderId) {
+        return orderDishRepository.findOrderDishByOrderId(orderId).getDishTypeEnum();
     }
 
 }
