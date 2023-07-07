@@ -20,5 +20,6 @@ public interface IOrderDishEntityMapper {
 
     List<OrderDish> toModel(List<OrderDishEntity> orderDishEntity);
 
+    OrderDish toEntity(OrderDishEntity orderDishById);
 
 }

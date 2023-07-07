@@ -1,5 +1,6 @@
 package com.pragma.powerup.usermicroservice.domain.spi;
 
+import com.pragma.powerup.usermicroservice.adapters.driven.jpa.mysql.entity.OrderDishEntity;
 import com.pragma.powerup.usermicroservice.domain.enums.DishTypeEnum;
 import com.pragma.powerup.usermicroservice.domain.model.OrderDish;
 
@@ -9,4 +10,6 @@ public interface IOrderDishPersistencePort {
     void saveOrderDish(List<OrderDish> orderDishes);
     List<OrderDish> getRestaurantOrderDish(String status, Long idRestaurant);
     DishTypeEnum getDishTypeByOrderId(Long orderId);
+
+    OrderDish getOrderDishByOrderIdAndDishType(Long id, DishTypeEnum dishTypeEnum);
 }

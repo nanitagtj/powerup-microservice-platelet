@@ -3,6 +3,7 @@ package com.pragma.powerup.usermicroservice.adapters.driving.http.controller;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request.OrderRequestDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.*;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.handlers.IOrderHandler;
+import com.pragma.powerup.usermicroservice.adapters.driving.http.validator.CustomOrderDishResponse;
 import com.pragma.powerup.usermicroservice.configuration.Constants;
 import com.pragma.powerup.usermicroservice.domain.comparator.DishComparator;
 import com.pragma.powerup.usermicroservice.domain.enums.DishTypeEnum;
@@ -21,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -90,12 +92,30 @@ public class OrderController {
     @Operation(summary = "Get pending orders",
             responses = {
                     @ApiResponse(responseCode = "200", description = "List of pending orders",
-                            content = @Content(mediaType = "application/json", schema = @Schema(type = "array", implementation = OrderDishRespDto.class)))
+                            content = @Content(mediaType = "application/json", schema = @Schema(type = "array", implementation = CustomOrderDishResponse.class)))
             })
     @GetMapping("/pendingOrders")
-    public ResponseEntity<List<OrderDishRespDto>> getPendingOrders() {
-        List<OrderDishRespDto> pendingOrders = orderHandler.getPendingOrders();
-        return ResponseEntity.ok(pendingOrders);
+    public ResponseEntity<List<CustomOrderDishResponse>> getPendingOrders() {
+        List<OrderDishResponseDto> pendingOrders = orderHandler.getPendingOrders();
+        List<CustomOrderDishResponse> customResponses = new ArrayList<>();
+        for (OrderDishResponseDto orderDishResponseDto : pendingOrders) {
+            CustomOrderDishResponse customResponse = CustomOrderDishResponse.fromOrderDishRespDto(orderDishResponseDto);
+            customResponses.add(customResponse);
+        }
+
+        return ResponseEntity.ok(customResponses);
+    }
+
+    private List<CustomOrderDishResponse> formatPendingOrders(List<OrderDish> pendingOrders) {
+        List<CustomOrderDishResponse> formattedOrders = new ArrayList<>();
+
+        for (OrderDish orderDish : pendingOrders) {
+            CustomOrderDishResponse formattedOrder = new CustomOrderDishResponse();
+            // Lógica para configurar los atributos personalizados en la clase CustomOrderDishResponse
+            formattedOrders.add(formattedOrder);
+        }
+
+        return formattedOrders;
     }
     @Operation(summary = "Get orders from a restaurant",
             responses = {

@@ -1,13 +1,11 @@
 package com.pragma.powerup.usermicroservice.adapters.driving.http.handlers.impl;
 
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request.OrderRequestDto;
-import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.EmployeeAverageElapsedTimeDto;
-import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderDishRespDto;
-import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderListResponseDto;
-import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderResponseDto;
+import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.*;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.handlers.IOrderHandler;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.mapper.IOrderRequestMapper;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.mapper.IOrderResponseMapper;
+import com.pragma.powerup.usermicroservice.adapters.driving.http.validator.CustomOrderDishResponse;
 import com.pragma.powerup.usermicroservice.configuration.security.jwt.JwtProvider;
 import com.pragma.powerup.usermicroservice.domain.api.IOrderServicePort;
 import com.pragma.powerup.usermicroservice.domain.comparator.DishComparator;
@@ -86,12 +84,14 @@ public class OrderHandlerImpl implements IOrderHandler {
     }
 
     @Override
-    public List<OrderDishRespDto> getPendingOrders() {
+    public List<OrderDishResponseDto> getPendingOrders() {
         List<OrderDish> pendingOrderDishes = orderServicePort.pendingOrders();
-        List<OrderDishRespDto> pendingOrders = new ArrayList<>();
+        List<OrderDishResponseDto> pendingOrders = new ArrayList<>();
+
         for (OrderDish orderDish : pendingOrderDishes) {
-            OrderDishRespDto orderDishRespDto = orderResponseMapper.toOrderDishRespDto(orderDish);
-            pendingOrders.add(orderDishRespDto);
+            CustomOrderDishResponse customOrderDishResponse = new CustomOrderDishResponse(orderDish);
+            OrderDishResponseDto orderDishResponseDto = orderResponseMapper.toOrderDishRespDto(customOrderDishResponse);
+            pendingOrders.add(orderDishResponseDto);
         }
 
         return pendingOrders;

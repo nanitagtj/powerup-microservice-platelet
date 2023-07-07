@@ -2,8 +2,9 @@ package com.pragma.powerup.usermicroservice.adapters.driving.http.mapper;
 
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.EmployeeAverageElapsedTimeDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderDishRespDto;
+import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderDishResponseDto;
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderResponseDto;
-import com.pragma.powerup.usermicroservice.domain.enums.DishTypeEnum;
+import com.pragma.powerup.usermicroservice.adapters.driving.http.validator.CustomOrderDishResponse;
 import com.pragma.powerup.usermicroservice.domain.model.EmployeeRanking;
 import com.pragma.powerup.usermicroservice.domain.model.Order;
 
@@ -34,5 +35,20 @@ public interface IOrderResponseMapper {
 
     OrderResponseDto toOrderResponse(Order order);
 
-    OrderDishRespDto toOrderDishRespDto(OrderDish orderDish);
+    @Mapping(source = "grams", target = "grams")
+    @Mapping(source = "dishTypeEnum", target = "dishTypeEnum")
+    @Mapping(source = "soupAccompanimentEnum", target = "soupAccompanimentEnum")
+    @Mapping(source = "dessertType", target = "dessertType")
+    @Mapping(source = "flavorTypeEnum", target = "flavorTypeEnum")
+    @Mapping(source = "toppingTypeEnum", target = "toppingTypeEnum")
+    OrderDishResponseDto toOrderDishResponseDto(OrderDish orderDish);
+
+    @Mapping(source = "dishTypeEnum", target = "dishTypeEnum")
+    @Mapping(source = "grams", target = "grams")
+    @Mapping(source = "soupAccompanimentEnum", target = "soupAccompanimentEnum")
+    @Mapping(source = "dessertType", target = "dessertType")
+    @Mapping(source = "flavorTypeEnum", target = "flavorTypeEnum")
+    @Mapping(source = "toppingTypeEnum", target = "toppingTypeEnum")
+    OrderDishResponseDto toOrderDishRespDto(CustomOrderDishResponse customOrderDishResponse);
+
 }

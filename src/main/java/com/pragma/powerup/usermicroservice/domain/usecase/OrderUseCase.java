@@ -84,7 +84,7 @@ public class OrderUseCase implements IOrderServicePort {
 
         DishTypeEnum dishType = orderDishPersistencePort.getDishTypeByOrderId(orderId);
         if (dishType != null) {
-            orderDishQueue.add(new OrderDish(orderId, dishType));
+            orderDishQueue.add(new OrderDish(order.getId(), dishType));
         }
 
         PriorityQueue<OrderDish> tempQueue = new PriorityQueue<>(orderDishQueue);
@@ -119,7 +119,14 @@ public class OrderUseCase implements IOrderServicePort {
             throw new OrderNotFoundException();
         }
 
-        List<OrderDish> pendingOrderDishes = new ArrayList<>(orderDishQueue);
+        List<OrderDish> pendingOrderDishes = new ArrayList<>();
+        for (OrderDish orderDish : orderDishQueue) {
+            Long orderId = orderDish.getOrder().getId();
+            DishTypeEnum dishTypeEnum = orderDish.getDishTypeEnum();
+
+            OrderDish completeOrderDish = orderDishPersistencePort.getOrderDishByOrderIdAndDishType(orderId, dishTypeEnum);
+            pendingOrderDishes.add(completeOrderDish);
+        }
 
         return pendingOrderDishes;
     }

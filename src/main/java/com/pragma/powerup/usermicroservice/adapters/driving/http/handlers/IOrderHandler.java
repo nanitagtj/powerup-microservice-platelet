@@ -1,10 +1,7 @@
 package com.pragma.powerup.usermicroservice.adapters.driving.http.handlers;
 
 import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.request.OrderRequestDto;
-import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.EmployeeAverageElapsedTimeDto;
-import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderDishRespDto;
-import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderListResponseDto;
-import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.OrderResponseDto;
+import com.pragma.powerup.usermicroservice.adapters.driving.http.dto.response.*;
 import com.pragma.powerup.usermicroservice.domain.enums.DishTypeEnum;
 import com.pragma.powerup.usermicroservice.domain.model.Order;
 import com.pragma.powerup.usermicroservice.domain.model.OrderDish;
@@ -36,5 +33,5 @@ public interface IOrderHandler {
 
     OrderListResponseDto addOrdersByIds(List<Long> orderIds);
 
-    List<OrderDishRespDto> getPendingOrders();
+    List<OrderDishResponseDto> getPendingOrders();
 }
