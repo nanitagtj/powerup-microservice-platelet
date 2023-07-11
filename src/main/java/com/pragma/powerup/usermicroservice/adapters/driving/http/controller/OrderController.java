@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.pragma.powerup.usermicroservice.configuration.Constants.*;
 
@@ -46,26 +45,12 @@ public class OrderController {
                     @ApiResponse(responseCode = "409", description = "order already exists",
                             content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error")))})
     @PostMapping("/order")
-    public ResponseEntity<Map<String, String>> saveOrder(@RequestBody OrderRequestDto orderRequestDto, HttpServletRequest request) {
-        orderHandler.createOrder(orderRequestDto, request);
+    public ResponseEntity<Map<String, String>> addOrder(@RequestBody OrderRequestDto orderRequestDto, HttpServletRequest request) {
+        orderHandler.addOrder(orderRequestDto, request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY, ORDER_CREATED_MESSAGE));
     }
 
-    @Operation(summary = "Add a new order",
-            responses = {
-                    @ApiResponse(responseCode = "201", description = "order created",
-                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/OrderResponseDto"))),
-                    @ApiResponse(responseCode = "409", description = "order already exists",
-                            content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/Error")))
-            })
-    @PostMapping("/addOrder/{orderId}")
-    public ResponseEntity<Map<String, OrderListResponseDto>> addOrder(@PathVariable Long orderId) {
-        OrderListResponseDto responseDto = orderHandler.addOrder(orderId);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY, responseDto));
-    }
 
     @Operation(summary = "Add multiple orders",
             responses = {
@@ -73,21 +58,20 @@ public class OrderController {
                             content = @Content(mediaType = "application/json", schema = @Schema(ref = "#/components/schemas/OrderDish")))
             })
     @PostMapping("/addOrders")
-    public ResponseEntity<Map<String, OrderListResponseDto>> addOrders(@RequestParam List<Long> orderIds) {
-        OrderListResponseDto responseDto = orderHandler.addOrdersByIds(orderIds);
-
+    public ResponseEntity<Map<String, String>> addOrders(@RequestBody List<OrderRequestDto> orderRequestDtos, HttpServletRequest request) {
+        orderHandler.addOrders(orderRequestDtos, request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY, responseDto));
+                .body(Collections.singletonMap(Constants.RESPONSE_MESSAGE_KEY, ORDER_CREATED_MESSAGE));
     }
-    @Operation(summary = "Take an order and get remaining dish types",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "order taken and remaining dish types retrieved",
-                            content = @Content(mediaType = "application/json", schema = @Schema(type = "array", example = "[\"MEAT\", \"SOUP\", \"DESSERT\"]")))
-            })
+    @Operation(summary = "Take an order", responses = {
+            @ApiResponse(responseCode = "200", description = "Order taken",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = OrderDishResponseDto.class)))
+    })
     @GetMapping("/takeOrder")
-    public ResponseEntity<List<DishTypeEnum>> takeOrder() {
-        List<DishTypeEnum> remainingDishTypes = orderHandler.takeOrder();
-        return ResponseEntity.ok(remainingDishTypes);
+    public ResponseEntity<CustomOrderDishResponse> takeOrder() {
+        OrderDishResponseDto orderDishResponseDto = orderHandler.takeOrder();
+        CustomOrderDishResponse customOrderDishResponse = CustomOrderDishResponse.fromOrderDishRespDto(orderDishResponseDto);
+        return ResponseEntity.ok(customOrderDishResponse);
     }
     @Operation(summary = "Get pending orders",
             responses = {
@@ -106,17 +90,6 @@ public class OrderController {
         return ResponseEntity.ok(customResponses);
     }
 
-    private List<CustomOrderDishResponse> formatPendingOrders(List<OrderDish> pendingOrders) {
-        List<CustomOrderDishResponse> formattedOrders = new ArrayList<>();
-
-        for (OrderDish orderDish : pendingOrders) {
-            CustomOrderDishResponse formattedOrder = new CustomOrderDishResponse();
-            // Lógica para configurar los atributos personalizados en la clase CustomOrderDishResponse
-            formattedOrders.add(formattedOrder);
-        }
-
-        return formattedOrders;
-    }
     @Operation(summary = "Get orders from a restaurant",
             responses = {
                     @ApiResponse(responseCode = "200", description = "[{}]",

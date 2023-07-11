@@ -51,7 +51,7 @@ public class OrderUseCase implements IOrderServicePort {
     }
 
     @Override
-    public void createOrder(Order order, Long clientId) {
+    public void addOrder(Order order, Long clientId) {
         LocalDateTime dateTime = LocalDateTime.now();
         String status = "Awaiting";
 
@@ -70,47 +70,47 @@ public class OrderUseCase implements IOrderServicePort {
         Order orderEntity = orderPersistencePort.saveOrder(order);
 
         order.getOrderDishes().forEach(orderDish -> orderDish.setOrder(orderEntity));
+        orderDishQueue.addAll(order.getOrderDishes());
         orderDishPersistencePort.saveOrderDish(order.getOrderDishes());
-
         validations.saveOrderLogForCreateOrder(orderEntity.getId());
     }
-
     @Override
-    public List<OrderDish> addOrder(Long orderId) {
-        Order order = orderPersistencePort.getOrderById(orderId);
-        if (order == null) {
-            return Collections.emptyList();
+    public void addOrders(List<Order> orders, Long clientId) {
+        LocalDateTime dateTime = LocalDateTime.now();
+        String status = "Awaiting";
+
+        if (validations.hasInProgressOrder(clientId)) {
+            throw new OrderInProgressException();
         }
 
-        DishTypeEnum dishType = orderDishPersistencePort.getDishTypeByOrderId(orderId);
-        if (dishType != null) {
-            orderDishQueue.add(new OrderDish(order.getId(), dishType));
+        for (Order order : orders) {
+            order.setClientId(clientId);
+            order.setDateTime(dateTime);
+            order.setStatus(status);
+
+            double amount = validations.calculateTotalAmount(order.getOrderDishes());
+            order.setAmount(amount);
+
+            Order orderEntity = orderPersistencePort.saveOrder(order);
+
+            order.getOrderDishes().forEach(orderDish -> orderDish.setOrder(orderEntity));
+            orderDishQueue.addAll(order.getOrderDishes());
+            orderDishPersistencePort.saveOrderDish(order.getOrderDishes());
+
+            validations.saveOrderLogForCreateOrder(orderEntity.getId());
         }
-
-        PriorityQueue<OrderDish> tempQueue = new PriorityQueue<>(orderDishQueue);
-
-        List<OrderDish> orderedOrderDishes = new ArrayList<>();
-        while (!tempQueue.isEmpty()) {
-            orderedOrderDishes.add(tempQueue.poll());
-        }
-
-        return orderedOrderDishes;
     }
 
+
     @Override
-    public List<DishTypeEnum> takeOrder() {
+    public OrderDish takeOrder() {
         if (orderDishQueue.isEmpty()) {
             throw new OrderNotFoundException();
         }
 
-        OrderDish takenOrderDish = orderDishQueue.poll();
+        OrderDish takenOrder = orderDishQueue.poll();
 
-        List<DishTypeEnum> remainingDishTypes = new ArrayList<>();
-        for (OrderDish orderDish : orderDishQueue) {
-            remainingDishTypes.add(orderDish.getDishTypeEnum());
-        }
-
-        return remainingDishTypes;
+        return takenOrder;
     }
 
     @Override

@@ -9,9 +9,9 @@ import com.pragma.powerup.usermicroservice.domain.model.OrderLogJson;
 import java.util.List;
 
 public interface IOrderServicePort {
-    void createOrder(Order order, Long clientId);
-    List<OrderDish> addOrder(Long orderId);
-    List<DishTypeEnum> takeOrder();
+    void addOrder(Order order, Long clientId);
+    void addOrders(List<Order> orders, Long clientId);
+    OrderDish takeOrder();
     List<OrderDish> pendingOrders();
     List<Order> getRestaurantOrder(int pageNumber, int pageSize, String statusOrder, Long idEmployee);
 

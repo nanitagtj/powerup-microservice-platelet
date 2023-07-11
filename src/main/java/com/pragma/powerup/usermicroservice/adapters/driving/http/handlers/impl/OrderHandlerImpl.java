@@ -8,7 +8,6 @@ import com.pragma.powerup.usermicroservice.adapters.driving.http.mapper.IOrderRe
 import com.pragma.powerup.usermicroservice.adapters.driving.http.validator.CustomOrderDishResponse;
 import com.pragma.powerup.usermicroservice.configuration.security.jwt.JwtProvider;
 import com.pragma.powerup.usermicroservice.domain.api.IOrderServicePort;
-import com.pragma.powerup.usermicroservice.domain.comparator.DishComparator;
 import com.pragma.powerup.usermicroservice.domain.enums.DishTypeEnum;
 import com.pragma.powerup.usermicroservice.domain.model.Order;
 import com.pragma.powerup.usermicroservice.domain.model.OrderDish;
@@ -24,9 +23,6 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.pragma.powerup.usermicroservice.configuration.Constants.ORDER_ADDED_MESSAGE;
 
 
 @Service
@@ -40,47 +36,21 @@ public class OrderHandlerImpl implements IOrderHandler {
 
 
     @Override
-    public void createOrder(OrderRequestDto orderRequestDto, HttpServletRequest request) {
+    public void addOrder(OrderRequestDto orderRequestDto, HttpServletRequest request) {
         Long clientId = jwtProvider.getUserIdFromToken(request.getHeader("Authorization"));
-        orderServicePort.createOrder(orderRequestMapper.toOrder(orderRequestDto), clientId);
+        orderServicePort.addOrder(orderRequestMapper.toOrder(orderRequestDto), clientId);
     }
-
     @Override
-    public OrderListResponseDto addOrder(Long orderId) {
-        List<OrderDish> orderDishes = orderServicePort.addOrder(orderId);
+    public void addOrders(List<OrderRequestDto> orderRequestDtos, HttpServletRequest request) {
+        Long clientId = jwtProvider.getUserIdFromToken(request.getHeader("Authorization"));
 
-        orderDishes.sort(new DishComparator());
-
-        List<DishTypeEnum> dishTypes = orderDishes.stream()
-                .map(OrderDish::getDishTypeEnum)
-                .collect(Collectors.toList());
-
-        OrderListResponseDto responseDto = new OrderListResponseDto();
-        responseDto.setMessage(ORDER_ADDED_MESSAGE);
-        responseDto.setDishTypes(dishTypes);
-
-        return responseDto;
-    }
-
-    @Override
-    public OrderListResponseDto addOrdersByIds(List<Long> orderIds) {
-        List<OrderDish> addedOrderDishes = new ArrayList<>();
-        for (Long orderId : orderIds) {
-            orderServicePort.addOrder(orderId);
-            addedOrderDishes.addAll(orderServicePort.getOrderDishes());
+        List<Order> orders = new ArrayList<>();
+        for (OrderRequestDto orderRequestDto : orderRequestDtos) {
+            Order order = orderRequestMapper.toOrder(orderRequestDto);
+            orders.add(order);
         }
 
-        addedOrderDishes.sort(new DishComparator());
-
-        List<DishTypeEnum> dishTypes = addedOrderDishes.stream()
-                .map(OrderDish::getDishTypeEnum)
-                .collect(Collectors.toList());
-
-        OrderListResponseDto responseDto = new OrderListResponseDto();
-        responseDto.setMessage(ORDER_ADDED_MESSAGE);
-        responseDto.setDishTypes(dishTypes);
-
-        return responseDto;
+        orderServicePort.addOrders(orders, clientId);
     }
 
     @Override
@@ -98,8 +68,11 @@ public class OrderHandlerImpl implements IOrderHandler {
     }
 
     @Override
-    public List<DishTypeEnum> takeOrder() {
-        return orderServicePort.takeOrder();
+    public OrderDishResponseDto takeOrder() {
+        OrderDish takenOrderDish = orderServicePort.takeOrder();
+
+        CustomOrderDishResponse customOrderDishResponse = new CustomOrderDishResponse(takenOrderDish);
+        return orderResponseMapper.toOrderDishRespDto(customOrderDishResponse);
     }
 
     @Override

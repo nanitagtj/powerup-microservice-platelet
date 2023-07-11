@@ -69,7 +69,7 @@ class OrderUseCaseTest {
     }
 
     @Test
-    public void createOrder_ValidOrder_SuccessfullyCreated() {
+    public void addOrder_ValidOrder_SuccessfullyCreated() {
         // Arrange
         Long clientId = 123L;
         Order order = new Order();
@@ -80,7 +80,7 @@ class OrderUseCaseTest {
         when(orderPersistencePort.saveOrder(any(Order.class))).thenReturn(order);
         doNothing().when(orderLogClientPort).saveOrderLog(any(String.class));
         // Act
-        orderUseCase.createOrder(order, clientId);
+        orderUseCase.addOrder(order, clientId);
         // Assert
         verify(orderPersistencePort).saveOrder(orderCaptor.capture());
         verify(orderDishPersistencePort).saveOrderDish(orderDishesCaptor.capture());
@@ -104,7 +104,7 @@ class OrderUseCaseTest {
 
         // Act & Assert
         assertThrows(OrderInProgressException.class, () -> {
-            orderUseCase.createOrder(order, clientId);
+            orderUseCase.addOrder(order, clientId);
         });
 
         verifyNoMoreInteractions(orderPersistencePort, orderDishPersistencePort, orderLogClientPort);
